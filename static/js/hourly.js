@@ -7,7 +7,7 @@ $(document).ready(function() {
             type: 'column'
         },
         title: {
-            text: 'Monthly Commands'
+            text: 'Hourly Commands'
         },
         xAxis: {
             categories: [
