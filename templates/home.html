@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+  <head>
+    {% block head %}
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"> -->
+    <title>{% block title %}Home{% endblock %}</title>
+    <script src="http://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    {% endblock %}
+  </head>
+  <body>
+    <div id="content">{% block content %}{% endblock %}</div>
+    <div id="footer">
+      {% block footer %}
+      &copy; Copyright 2017 by Timothée Mazzucotelli.
+      {% endblock %}
+    </div>
+  </body>
+</html>
