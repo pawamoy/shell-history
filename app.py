@@ -2,8 +2,11 @@
 
 from flask import Flask, render_template, jsonify
 
-app = Flask(__name__)
+import db
 
+app = Flask(__name__)
+db.create_tables()
+    
 
 @app.route('/')
 def home_view():

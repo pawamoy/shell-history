@@ -9,13 +9,15 @@ _zsh_last_command() {
 
 _bash_last_command() {
   local cmd
-  cmd="$(HISTTIMEFORMAT='' history 1)"
+  cmd="$(HISTTIMEFORMAT='' builtin history 1)"
   echo "${cmd#*  }"
 }
 
 # from https://stackoverflow.com/questions/1862510
 _shellhist_timer_now() {
-  date '+%s%N'
+  local now
+  now=$(date '+%s%N')
+  echo "${now:0:-3}"
 }
 
 _shellhist_timer_start() {
@@ -24,21 +26,19 @@ _shellhist_timer_start() {
 
 _shellhist_append() {
   local now dir cmd code=$1
+  # immediately get time
   now=$(_shellhist_timer_now)
+  # timer was never started
   [ ! -n "${_SHELLHIST_TIMER}" ] && return
+  # avoid delimiter corruption
   dir=$(base64 <<<"${PWD}")
-  cmd="$(_last_command)"
-  printf ": %s:%s:%s:%s:%s:%s:%s:%s:%s:%s\n" \
-    "${_SHELLHIST_TIMER}" \
-    "${now}" \
-    "$(hostname)" \
-    "${USER}" \
-    "${dir}" \
-    "$$" \
-    "${SHELL}" \
-    "${SHLVL}" \
-    "${code}" \
-    "${cmd#*  }" >> "${SHELLHIST_FILE}"
+  # multiline commands have preprended ';' (starting at line 2)
+  cmd="$(_last_command | sed -e '2,$s/^/;/')"
+  printf ":%s:%s:%s:%s:%s:%s:%s:%s:%s:%s\n" \
+    "${_SHELLHIST_TIMER}" "${now}" \
+    "$(hostname)" "${USER}" "${dir}" \
+    "$$" "${SHELL}" "${SHLVL}" \
+    "${code}" "${cmd}" >> "${SHELLHIST_FILE}"
 }
 
 enable_shellhist() {

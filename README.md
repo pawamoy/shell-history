@@ -44,3 +44,7 @@ Now go to http://127.0.0.1:5000/ and enjoy!
 ![hourly chart](pictures/hourly.png)
 
 ## How it works
+WIP
+
+## Chart ideas
+- usage of builtins, aliases, functions, GNU tools
