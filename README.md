@@ -1,4 +1,4 @@
-# BashHist
+# ShellHist
 Inspired from https://github.com/bamos/zsh-history-analysis.
 
 Visualize your usage of Bash/Zsh through a web app thanks
