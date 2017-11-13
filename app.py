@@ -1,19 +1,39 @@
 # -*- coding: utf-8 -*-
 
+from collections import Counter, defaultdict
+from dateutil.relativedelta import relativedelta
+from datetime import datetime
+import time
+
 from flask import Flask, render_template, jsonify
+from sqlalchemy import extract, func
 
 import db
 
 app = Flask(__name__)
 db.create_tables()
-    
+session = db.Session()
 
+# Utils ------------------------------------------------------------------------
+def since_epoch(date): # returns seconds since epoch
+    return time.mktime(date.timetuple())
+
+
+def fractional_year(start, end):
+    this_year = end.year
+    this_year_start = datetime(year=this_year, month=1, day=1)
+    next_year_start = datetime(year=this_year + 1, month=1, day=1)
+    time_elapsed = since_epoch(end) - since_epoch(start)
+    year_duration = since_epoch(next_year_start) - since_epoch(this_year_start)
+    return time_elapsed / year_duration
+
+
+# Simple views rendering templates ---------------------------------------------
 @app.route('/')
 def home_view():
     return render_template('home.html')
 
 
-# Simple views rendering templates ---------------------------------------------
 @app.route('/daily')
 def daily_view():
     return render_template('daily.html')
@@ -34,6 +54,11 @@ def hourly_view():
     return render_template('hourly.html')
 
 
+@app.route('/hourly_average')
+def hourly_average_view():
+    return render_template('hourly_average.html')
+
+
 @app.route('/hourly_number')
 def hourly_number_view():
     return render_template('hourly_number.html')
@@ -52,6 +77,11 @@ def markov_view():
 @app.route('/monthly')
 def monthly_view():
     return render_template('monthly.html')
+
+
+@app.route('/monthly_average')
+def monthly_average_view():
+    return render_template('monthly_average.html')
 
 
 @app.route('/top_commands_full')
@@ -95,7 +125,28 @@ def fuck_json():
 
 @app.route('/hourly_json')
 def hourly_json():
-    data = [49, 71, 106, 129, 144, 176, 135, 148, 216, 194, 95, 54, 49, 71, 106, 129, 144, 176, 135, 148, 216, 194, 95, 54]
+    results = defaultdict(
+        lambda: 0,
+        session.query(
+            extract('hour', db.History.start).label('hour'),
+            func.count('hour')
+        ).group_by('hour').all())
+    data = [results[hour] for hour in range(0, 24)]
+    return jsonify(data)
+
+
+@app.route('/hourly_average_json')
+def hourly_average_json():
+    mintime = session.query(func.min(db.History.start)).first()[0]
+    maxtime = session.query(func.max(db.History.start)).first()[0]
+    number_of_days = (maxtime - mintime).days + 1
+    results = defaultdict(
+        lambda: 0,
+        session.query(
+            extract('hour', db.History.start).label('hour'),
+            func.count('hour')
+        ).group_by('hour').all())
+    data = [results[hour] / number_of_days for hour in range(0, 24)]
     return jsonify(data)
 
 
@@ -119,7 +170,28 @@ def markov_json():
 
 @app.route('/monthly_json')
 def monthly_json():
-    data = [49, 71, 106, 129, 144, 176, 135, 148, 216, 194, 95, 54]
+    results = defaultdict(
+        lambda: 0,
+        session.query(
+            extract('month', db.History.start).label('month'),
+            func.count('month')
+        ).group_by('month').all())
+    data = [results[month] for month in range(1, 13)]
+    return jsonify(data)
+
+
+@app.route('/monthly_average_json')
+def monthly_average_json():
+    mintime = session.query(func.min(db.History.start)).first()[0]
+    maxtime = session.query(func.max(db.History.start)).first()[0]
+    number_of_years = fractional_year(mintime, maxtime) + 1
+    results = defaultdict(
+        lambda: 0,
+        session.query(
+            extract('month', db.History.start).label('month'),
+            func.count('month')
+        ).group_by('month').all())
+    data = [float('%.2f' % (results[month] / number_of_years)) for month in range(1, 13)]
     return jsonify(data)
 
 

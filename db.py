@@ -1,10 +1,11 @@
 import os
 import sys
 
+from base64 import b64decode
 from collections import namedtuple
 from datetime import datetime
 
-from sqlalchemy import create_engine, Column, Integer, String, UnicodeText, DateTime, UniqueConstraint
+from sqlalchemy import create_engine, Column, Integer, String, UnicodeText, DateTime, UniqueConstraint, Text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -16,25 +17,21 @@ Session = sessionmaker(bind=engine)
 
 class History(Base):
     __tablename__ = 'history'
-    __table_args__ = (UniqueConstraint('start', 'pid'), {'useexisting': True})
+    __table_args__ = (UniqueConstraint('start', 'uuid'), {'useexisting': True})
 
     id = Column(Integer, primary_key=True)
     start = Column(DateTime)
     stop = Column(DateTime)
     host = Column(String)
     user = Column(String)
-    path = Column( String)
-    pid = Column(Integer)
+    uuid = Column(String)
+    tty = Column(String)
+    parents = Column(Text)
     shell = Column(String)
     level = Column(Integer)
     code = Column(Integer)
+    path = Column( String)
     cmd = Column(UnicodeText)
-
-    # TODO: add these fields as well
-    # uuid = Column('uuid', String)
-    # ppid = Column('ppid', String)
-    # tty = Column('tty', String)
-    # parents = Column('parents', String)
 
     def __repr__(self):
         return "<History(path='%s', cmd='%s')>" % (self.path, self.cmd)
@@ -51,8 +48,8 @@ def add(**kwargs):
 def line_split(line):
     return namedtuple(
         'history',
-        'start stop host user path pid shell level code cmd')(
-            *line.split(':', 9))
+        'start stop uuid parents host user tty path shell level code cmd')(
+            *line.split(':', 11))
 
 
 def namedtuple_to_history(nt):
@@ -62,8 +59,10 @@ def namedtuple_to_history(nt):
             stop=datetime.fromtimestamp(float(nt.stop)/1000000.0),
             host=nt.host,
             user=nt.user,
-            path=nt.path,
-            pid=nt.pid,
+            path=b64decode(nt.path),
+            uuid=nt.uuid,
+            tty=nt.tty,
+            parents=b64decode(nt.parents),
             shell=nt.shell,
             level=nt.level,
             code=nt.code,
