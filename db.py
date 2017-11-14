@@ -1,17 +1,23 @@
 import os
+import shutil
 import sys
-
+import time
+import uuid
 from base64 import b64decode
 from collections import namedtuple
 from datetime import datetime
 
-from sqlalchemy import create_engine, Column, Integer, String, UnicodeText, DateTime, UniqueConstraint, Text
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import (Column, DateTime, Integer, String, Text, UnicodeText,
+                        UniqueConstraint, create_engine)
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import exc, sessionmaker
 
+DB_PATH = os.getenv('SHELLHIST_DB', 'shellhistory.db')
+HISTFILE_PATH = os.environ.get('SHELLHIST_FILE', 'shellhistory')
+UUID = str(uuid.uuid4())
 
 Base = declarative_base()
-engine = create_engine('sqlite:///shellhistory.db')
+engine = create_engine('sqlite:///%s' % DB_PATH)
 Session = sessionmaker(bind=engine)
 
 
@@ -41,8 +47,14 @@ def create_tables():
     Base.metadata.create_all(engine)
 
 
-def add(**kwargs):
-    session.add(History(**kwargs))
+def flush():
+    session = Session()
+    session.query(History).delete()
+    session.commit()
+
+
+def delete_table(table=History):
+    table.__table__.drop(engine)
 
 
 def line_split(line):
@@ -100,21 +112,30 @@ def import_file(path):
     session.commit()
 
 
-def flush():
-    session = Session()
-    session.query(History).delete()
-    session.commit()
-
-
-def delete_table(table=History):
-    table.__table__.drop(engine)
-
+def backup_file(path):
+    backup_path = '%s.%s.bak' % (path, UUID)
+    shutil.move(path, backup_path)
+    with open(path, 'a'):
+        os.utime(path)
 
 def import_history():
-    history_file = os.environ.get('SHELLHIST_FILE', None)
-    if history_file is None:
-        raise ValueError('SHELLHIST_FILE environment variable is not defined.')
-    if not os.path.exists(history_file):
-        raise ValueError('%s: no such file' % history_file)
+    if not os.path.exists(HISTFILE_PATH):
+        raise ValueError('%s: no such file' % HISTFILE_PATH)
     create_tables()
-    import_file(history_file)
+    import_file(HISTFILE_PATH)
+
+
+def backup_history():
+    if not os.path.exists(HISTFILE_PATH):
+        raise ValueError('%s: no such file' % HISTFILE_PATH)
+    backup_file(HISTFILE_PATH)
+
+
+def update():
+    create_tables()
+    try:
+        import_history()
+    except exc.UnmappedInstanceError:
+        pass
+    else:
+        backup_history()

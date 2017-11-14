@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from collections import Counter, defaultdict
-from dateutil.relativedelta import relativedelta
-from datetime import datetime
 import time
+from collections import Counter, defaultdict
+from datetime import datetime
 
-from flask import Flask, render_template, jsonify
+from dateutil.relativedelta import relativedelta
+from flask import Flask, jsonify, render_template
 from sqlalchemy import extract, func
 
 import db
 
 app = Flask(__name__)
-db.create_tables()
+db.update()
 session = db.Session()
 
 # Utils ------------------------------------------------------------------------

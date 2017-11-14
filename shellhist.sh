@@ -1,4 +1,6 @@
-SHELLHIST_FILE="${HOME}/.shell_extended_history"
+mkdir "${HOME}/.shellhist/" &>/dev/null
+SHELLHIST_FILE="${HOME}/.shellhist/history"
+SHELLHIST_DB="${HOME}/.shellhist/db"
 _SHELLHIST_TRAP_SET=0
 _SHELLHIST_ENABLED=0
 _SHELLHIST_TIMER=
@@ -21,6 +23,7 @@ _SHELLHIST_TTY="$(tty)"
 _SHELLHIST_PARENTS="$(_parents | base64 -w0)"
 
 export SHELLHIST_FILE
+export SHELLHIST_DB
 export _SHELLHIST_UUID
 
 _last_command() {

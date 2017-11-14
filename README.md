@@ -1,10 +1,8 @@
 # ShellHist
 Inspired from https://github.com/bamos/zsh-history-analysis.
 
-Visualize your usage of Bash/Zsh through a web app thanks
-to Flask and Highcharts.
-
-**Alpha stage! Actual history is not used (only fixtures right now).**
+Visualize your usage of Bash/Zsh through a web app
+thanks to Flask and Highcharts.
 
 - [Dependencies](#dependencies)
 - [Installation](#installation)
@@ -15,8 +13,9 @@ to Flask and Highcharts.
 - [Chart ideas](#chart-ideas)
 
 ## Dependencies
-Only Flask: `pip install flask`. You will also need Internet connection since
-assets are not bundled.
+Python packages: `pip install -r requirements.txt`. You can install them in a
+specific virtualenv or globally with sudo.
+You will also need Internet connection since assets are not bundled.
 
 ## Installation
 Clone the repo with `git clone https://github.com/Pawamoy/shellhist`.
@@ -26,7 +25,7 @@ shell history is not enough. In order to generate the necessary information,
 you have to source the `shellhist.sh` script.
 
 It will append your commands in a second file in your home:
-`.shell_history_extended`.
+`.shellhist/history`.
 
 **Your shell history configuration will not be modified.**
 
@@ -46,6 +45,10 @@ So, at shell startup, in `.bashrc` or `.zshrc`, put a line like the following:
 ## Usage
 Simply `./run.sh`, or run it manually with `FLASK_APP=app.py flask run`.
 Now go to http://127.0.0.1:5000/ and enjoy!
+
+Each time you launch the Flask application, the current history file is imported
+into an SQLite database (located at `~/.shellhist/db`), and the history file is
+renamed `.shellhist/history.UUID.bak`, UUID being an auto-generated UUID string.
 
 ## Charts examples
 ![monthly chart](pictures/monthly.png)
