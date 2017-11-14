@@ -113,7 +113,7 @@ history between terminals.
 ## Chart ideas
 - usage of builtins, aliases, functions, GNU tools
 
-##License
+## License
 Software licensed under the
 [ISC](https://www.isc.org/downloads/software-support-policy/isc-license/)
 license.
