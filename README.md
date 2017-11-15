@@ -4,31 +4,13 @@ Inspired from https://github.com/bamos/zsh-history-analysis.
 Visualize your usage of Bash/Zsh through a web app
 thanks to Flask and Highcharts.
 
-- [Dependencies](#dependencies)
 - [Installation](#installation)
+- [Dependencies](#dependencies)
 - [Usage](#usage)
 - [How it looks](#how-it-looks)
 - [How it works](#how-it-works)
 - [History file format](#history-file-format)
 - [Chart ideas](#chart-ideas)
-
-## Dependencies
-Python packages: `pip install -r requirements.txt`.
-
-Python 2 is not supported right now, so unless your system Python is version 3
-or above, install them in a Python 3 virtualenv with:
-
-```bash
-sudo apt-get install python-virtualenv
-virtualenv -p python3 venv
-. venv/bin/activate
-pip install -r requirements.txt
-```
-
-You can specify the path to your virtualenv in the variable `SHELLHISTORY_VENV`
-(by default `run.sh` will use `venv` if it exists).
-
-You will also need Internet connection since assets are not bundled.
 
 ## Installation
 Clone the repo with `git clone https://github.com/Pawamoy/shell-history`.
@@ -54,6 +36,25 @@ So, at shell startup, in `.bashrc` or `.zshrc`, put a line like the following:
 ```
 
 ... and now use your shell normally!
+
+## Dependencies
+To launch the web app, you will need to install some Python packages:
+`pip install -r requirements.txt`.
+
+Python 2 is not supported right now, so unless your system Python is version 3
+or above, install them in a Python 3 virtualenv with:
+
+```bash
+sudo apt-get install python-virtualenv
+virtualenv -p python3 venv
+. venv/bin/activate
+pip install -r requirements.txt
+```
+
+You can specify the path to your virtualenv in the variable `SHELLHISTORY_VENV`
+(by default `run.sh` will use `venv` if it exists).
+
+You will also need Internet connection since assets are not bundled.
 
 ## Usage
 Simply `./run.sh`, or run it manually with `FLASK_APP=app.py flask run`.
