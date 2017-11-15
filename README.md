@@ -1,5 +1,5 @@
 # Shell History
-Inspired from https://github.com/bamos/zsh-history-analysis.
+Inspired by https://github.com/bamos/zsh-history-analysis.
 
 Visualize your usage of Bash/Zsh through a web app
 thanks to Flask and Highcharts.
