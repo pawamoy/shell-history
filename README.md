@@ -7,7 +7,7 @@ thanks to Flask and Highcharts.
 - [Dependencies](#dependencies)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Charts examples](#charts-examples)
+- [How it looks](#how-it-looks)
 - [History file format](#history-file-format)
 - [How it works](#how-it-works)
 - [Chart ideas](#chart-ideas)
@@ -50,9 +50,8 @@ Each time you launch the Flask application, the current history file is imported
 into an SQLite database (located at `~/.shellhist/db`), and the history file is
 renamed `.shellhist/history.UUID.bak`, UUID being an auto-generated UUID string.
 
-## Charts examples
-![monthly chart](pictures/monthly.png)
-![hourly chart](pictures/hourly.png)
+## How it looks
+![length chart](pictures/length.png)
 
 ## History file format
 Fields saved along commands are start and stop timestamps, hostname, username,
