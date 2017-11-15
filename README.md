@@ -11,6 +11,7 @@ thanks to Flask and Highcharts.
 - [How it works](#how-it-works)
 - [History file format](#history-file-format)
 - [Chart ideas](#chart-ideas)
+- [License](#license)
 
 ## Installation
 Clone the repo with `git clone https://github.com/Pawamoy/shell-history`.
