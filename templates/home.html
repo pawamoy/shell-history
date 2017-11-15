@@ -4,36 +4,47 @@
     {% block head %}
     <!-- <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"> -->
     <title>{% block title %}Home{% endblock %}</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"></link>
     <script src="http://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
     {% endblock %}
   </head>
   <body>
-    <div id="header">
-      <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="/daily">Daily commands</a></li>
-        <!-- <li><a href="/daily_number">Daily number</a></li> -->
-        <li><a href="/fuck">"Fuck" commands</a></li>
-        <li><a href="/hourly">Hourly commands</a></li>
-        <li><a href="/hourly_average">Average hourly commands</a></li>
-        <!-- <li><a href="/hourly_number">Hourly number</a></li> -->
-        <li><a href="/length">Commands by length</a></li>
-        <li><a href="/markov">Markov chains</a></li>
-        <li><a href="/monthly">Monthly commands</a></li>
-        <li><a href="/monthly_average">Average monthly commands</a></li>
-        <li><a href="/top_commands_full">Top commands (full lines)</a></li>
-        <li><a href="/top_commands">Top commands (first word only)</a></li>
-        <li><a href="/trending">Trending commands</a></li>
-        <li><a href="/type">Commands by type</a></li>
-      </ul>
-    </div>
-    <div id="content">{% block content %}{% endblock %}</div>
-    <div id="footer">
-      {% block footer %}
-      &copy; Copyright 2017 by Timothée Mazzucotelli.
-      {% endblock %}
+    <div class="container">
+      <header id="header">
+        <h1>Shell History</h1>
+      </header>
+      <hr>
+      <section id="content">
+        <div class="row">
+          <div class="col-md-3">
+            <ul class="list-unstyled">
+              <li><a href="/">Home</a></li>
+              <li><a href="/daily">Daily commands</a></li>
+              <li><a href="/fuck">"Fuck" commands</a></li>
+              <li><a href="/hourly">Hourly commands</a></li>
+              <li><a href="/hourly_average">Average hourly commands</a></li>
+              <li><a href="/length">Commands by length</a></li>
+              <li><a href="/markov">Markov chains</a></li>
+              <li><a href="/monthly">Monthly commands</a></li>
+              <li><a href="/monthly_average">Average monthly commands</a></li>
+              <li><a href="/top_commands_full">Top commands (full lines)</a></li>
+              <li><a href="/top_commands">Top commands (first word only)</a></li>
+              <li><a href="/trending">Trending commands</a></li>
+              <li><a href="/type">Commands by type</a></li>
+            </ul>
+          </div>
+          <div class="col-md-9">
+            {% block content %}{% endblock %}
+          </div>
+        </div>
+      </section>
+      <hr>
+      <footer id="footer">
+        <em>&copy; Copyright 2017 by Timothée Mazzucotelli.</em>
+      </footer>
     </div>
   </body>
 </html>
