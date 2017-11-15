@@ -10,6 +10,9 @@ $(document).ready(function() {
             text: 'Monthly Commands'
         },
         xAxis: {
+            title: {
+                text: 'Month'
+            },
             categories: [
                 'Jan',
                 'Feb',

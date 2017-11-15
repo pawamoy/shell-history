@@ -3,6 +3,7 @@
 import time
 from collections import Counter, defaultdict
 from datetime import datetime
+import statistics
 
 from dateutil.relativedelta import relativedelta
 from flask import Flask, jsonify, render_template
@@ -158,7 +159,22 @@ def hourly_number_json():
 
 @app.route('/length_json')
 def length_json():
-    data = None
+    results = defaultdict(
+        lambda: 0,
+        session.query(
+            func.char_length(db.History.cmd).label('length'),
+            func.count('length')
+        ).group_by('length').all())
+
+    flat_values = []
+    for length, number in results.items():
+        flat_values.extend([length] * number)
+
+    data = {
+        'average': float('%.2f' % statistics.mean(flat_values)),
+        'median': statistics.median(flat_values),
+        'series': [results[length] for length in range(1, max(results.keys()) + 1)]
+    }
     return jsonify(data)
 
 

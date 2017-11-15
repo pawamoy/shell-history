@@ -10,6 +10,9 @@ $(document).ready(function() {
             text: 'Average Hourly Commands'
         },
         xAxis: {
+            title: {
+                text: 'Hour'
+            },
             categories: [
               '00',
               '01',
