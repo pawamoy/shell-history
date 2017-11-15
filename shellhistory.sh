@@ -6,11 +6,12 @@ _SHELLHISTORY_ENABLED=0
 _SHELLHISTORY_TIMER=
 _SHELLHISTORY_PREVCMD_NUM=
 
+# shellcheck disable=SC2120
 _parents() {
   local list pid
   list="$(ps -eo pid,ppid,command | tr -s ' ' | sed 's/^ //g')"
   pid=${1:-$$}
-  while [ ${pid} -ne 0 ]; do
+  while [ "${pid}" -ne 0 ]; do
     echo "${list}" | grep "^${pid} " | cut -d' ' -f3-
     pid=$(echo "${list}" | grep "^${pid} " | cut -d' ' -f2)
   done
@@ -20,6 +21,7 @@ _parents() {
 _SHELLHISTORY_HOSTNAME="$(hostname)"
 _SHELLHISTORY_UUID="${_SHELLHISTORY_UUID:-$(uuidgen)}"
 _SHELLHISTORY_TTY="$(tty)"
+# shellcheck disable=SC2119
 _SHELLHISTORY_PARENTS="$(_parents | base64 -w0)"
 
 export SHELLHISTORY_FILE
@@ -50,7 +52,7 @@ _can_append() {
   [ ! -n "${_SHELLHISTORY_TIMER}" ] && return 1
   last_number=$(_last_command_number)
   if [ -n "${_SHELLHISTORY_PREVCMD_NUM}" ]; then
-    [ ${last_number} -eq ${_SHELLHISTORY_PREVCMD_NUM} ] && return 1
+    [ "${last_number}" -eq ${_SHELLHISTORY_PREVCMD_NUM} ] && return 1
     _SHELLHISTORY_PREVCMD_NUM=${last_number}
   else
     _SHELLHISTORY_PREVCMD_NUM=${last_number}
