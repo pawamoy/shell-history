@@ -13,8 +13,21 @@ thanks to Flask and Highcharts.
 - [Chart ideas](#chart-ideas)
 
 ## Dependencies
-Python packages: `pip install -r requirements.txt`. You can install them in a
-specific virtualenv or globally with sudo.
+Python packages: `pip install -r requirements.txt`.
+
+Python 2 is not supported right now, so unless your system Python is version 3
+or above, install them in a Python 3 virtualenv with:
+
+```bash
+sudo apt-get install python-virtualenv
+virtualenv -p python3 venv
+. venv/bin/activate
+pip install -r requirements.txt
+```
+
+You can specify the path to your virtualenv in the variable `SHELLHISTORY_VENV`
+(by default `run.sh` will use `venv` if it exists).
+
 You will also need Internet connection since assets are not bundled.
 
 ## Installation

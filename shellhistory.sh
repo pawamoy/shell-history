@@ -7,7 +7,7 @@ _SHELLHISTORY_TIMER=
 _SHELLHISTORY_PREVCMD_NUM=
 
 # shellcheck disable=SC2120
-_parents() {
+_shellhistory_parents() {
   local list pid
   list="$(ps -eo pid,ppid,command | tr -s ' ' | sed 's/^ //g')"
   pid=${1:-$$}
@@ -22,18 +22,18 @@ _SHELLHISTORY_HOSTNAME="$(hostname)"
 _SHELLHISTORY_UUID="${_SHELLHISTORY_UUID:-$(uuidgen)}"
 _SHELLHISTORY_TTY="$(tty)"
 # shellcheck disable=SC2119
-_SHELLHISTORY_PARENTS="$(_parents | base64 -w0)"
+_SHELLHISTORY_PARENTS="$(_shellhistory_parents | base64 -w0)"
 
 export SHELLHISTORY_FILE
 export SHELLHISTORY_DB
 export _SHELLHISTORY_UUID
 
-_last_command() {
+_shellhistory_last_command() {
   # multiline commands have preprended ';' (starting at line 2)
   fc -lnr -0 | sed -e '1s/^\t //;2,$s/^/;/'
 }
 
-_last_command_number() {
+_shellhistory_last_command_number() {
   fc -lr -0 | head -n1 | cut -f1
 }
 
@@ -47,10 +47,10 @@ _shellhistory_timer_start() {
   _SHELLHISTORY_TIMER=${_SHELLHISTORY_TIMER:-$(_shellhistory_timer_now)}
 }
 
-_can_append() {
+_shellhistory_can_append() {
   local last_number
   [ ! -n "${_SHELLHISTORY_TIMER}" ] && return 1
-  last_number=$(_last_command_number)
+  last_number=$(_shellhistory_last_command_number)
   if [ -n "${_SHELLHISTORY_PREVCMD_NUM}" ]; then
     [ "${last_number}" -eq ${_SHELLHISTORY_PREVCMD_NUM} ] && return 1
     _SHELLHISTORY_PREVCMD_NUM=${last_number}
@@ -65,7 +65,7 @@ _shellhistory_append() {
   # immediately get time
   now=$(_shellhistory_timer_now)
   # check that we can append
-  ! _can_append && return 1
+  ! _shellhistory_can_append && return 1
   # avoid delimiter corruption
   dir="$(base64 -w0 <<<"${PWD}")"
   printf ":%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s\n" \
@@ -80,7 +80,7 @@ _shellhistory_append() {
     "${SHELL}" \
     "${SHLVL}" \
     "${code}" \
-    "$(_last_command)" >> "${SHELLHISTORY_FILE}"
+    "$(_shellhistory_last_command)" >> "${SHELLHISTORY_FILE}"
 }
 
 enable_shellhistory() {
