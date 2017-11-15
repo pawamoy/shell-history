@@ -8,8 +8,8 @@ thanks to Flask and Highcharts.
 - [Installation](#installation)
 - [Usage](#usage)
 - [How it looks](#how-it-looks)
-- [History file format](#history-file-format)
 - [How it works](#how-it-works)
+- [History file format](#history-file-format)
 - [Chart ideas](#chart-ideas)
 
 ## Dependencies
@@ -53,26 +53,6 @@ renamed `.shellhist/history.UUID.bak`, UUID being an auto-generated UUID string.
 ## How it looks
 ![length chart](pictures/length.png)
 
-## History file format
-Fields saved along commands are start and stop timestamps, hostname, username,
-uuid (generated), tty, process' parents, shell, shell level, return code, and
-working directory (path), in the following format:
-`:start:stop:uuid:parents:host:user:tty:path:shell:level:code:command`.
-
-- multiline commands are prepended with a semi-colon `;` instead of a colon `:`,
-  starting at second line
-- start and stop timestamps are in microseconds since epoch
-- process' parents and working directory are encoded in base64 to avoid
-  delimiter corruption
-
-Example (multiline command):
-
-```
-:1510588139930150:1510588139936608:40701d9b-1807-4a3e-994b-dde68692aa14:L2Jpbi9iYXNoCi91c3IvYmluL3B5dGhvbiAvdXNyL2Jpbi94LXRlcm1pbmFsLWVtdWxhdG9yCi91c3IvYmluL29wZW5ib3ggLS1zdGFydHVwIC91c3IvbGliL3g4Nl82NC1saW51eC1nbnUvb3BlbmJveC1hdXRvc3RhcnQgT1BFTkJPWApsaWdodGRtIC0tc2Vzc2lvbi1jaGlsZCAxMiAyMQovdXNyL3NiaW4vbGlnaHRkbQovc2Jpbi9pbml0Cg==:myhost:pawamoy:/dev/pts/1:L21lZGlhL3Bhd2Ftb3kvRGF0YS9naXQvc2hlbGxoaXN0Cg==:/bin/bash:1:0:echo 'a
-;b
-;c' | wc -c
-```
-
 ## How it works
 In order to append a line each time a command is entered, the `PROMPT_COMMAND`
 variable and the `precmd` function are used, respectively for Bash and Zsh.
@@ -108,6 +88,26 @@ this is to check the command number in the current history (see `shellhist.sh`
 for technical details). Note however that if you type the same command in an
 other terminal, it will still be appended, unless you manage to synchronize your
 history between terminals.
+
+## History file format
+Fields saved along commands are start and stop timestamps, hostname, username,
+uuid (generated), tty, process' parents, shell, shell level, return code, and
+working directory (path), in the following format:
+`:start:stop:uuid:parents:host:user:tty:path:shell:level:code:command`.
+
+- multiline commands are prepended with a semi-colon `;` instead of a colon `:`,
+  starting at second line
+- start and stop timestamps are in microseconds since epoch
+- process' parents and working directory are encoded in base64 to avoid
+  delimiter corruption
+
+Example (multiline command):
+
+```
+:1510588139930150:1510588139936608:40701d9b-1807-4a3e-994b-dde68692aa14:L2Jpbi9iYXNoCi91c3IvYmluL3B5dGhvbiAvdXNyL2Jpbi94LXRlcm1pbmFsLWVtdWxhdG9yCi91c3IvYmluL29wZW5ib3ggLS1zdGFydHVwIC91c3IvbGliL3g4Nl82NC1saW51eC1nbnUvb3BlbmJveC1hdXRvc3RhcnQgT1BFTkJPWApsaWdodGRtIC0tc2Vzc2lvbi1jaGlsZCAxMiAyMQovdXNyL3NiaW4vbGlnaHRkbQovc2Jpbi9pbml0Cg==:myhost:pawamoy:/dev/pts/1:L21lZGlhL3Bhd2Ftb3kvRGF0YS9naXQvc2hlbGxoaXN0Cg==:/bin/bash:1:0:echo 'a
+;b
+;c' | wc -c
+```
 
 ## Chart ideas
 - usage of builtins, aliases, functions, GNU tools
