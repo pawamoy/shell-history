@@ -12,8 +12,8 @@ from sqlalchemy import (Column, DateTime, Integer, String, Text, UnicodeText,
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import exc, sessionmaker
 
-DB_PATH = os.getenv('SHELLHIST_DB', 'shellhistory.db')
-HISTFILE_PATH = os.environ.get('SHELLHIST_FILE', 'shellhistory')
+DB_PATH = os.getenv('SHELLHISTORY_DB', 'shellhistory.db')
+HISTFILE_PATH = os.environ.get('SHELLHISTORY_FILE', 'shellhistory')
 UUID = str(uuid.uuid4())
 
 Base = declarative_base()

@@ -40,11 +40,6 @@ def daily_view():
     return render_template('daily.html')
 
 
-@app.route('/daily_number')
-def daily_number_view():
-    return render_template('daily_number.html')
-
-
 @app.route('/fuck')
 def fuck_view():
     return render_template('fuck.html')
@@ -58,11 +53,6 @@ def hourly_view():
 @app.route('/hourly_average')
 def hourly_average_view():
     return render_template('hourly_average.html')
-
-
-@app.route('/hourly_number')
-def hourly_number_view():
-    return render_template('hourly_number.html')
 
 
 @app.route('/length')
@@ -112,12 +102,6 @@ def daily_json():
     return jsonify(data)
 
 
-@app.route('/daily_number_json')
-def daily_number_json():
-    data = None
-    return jsonify(data)
-
-
 @app.route('/fuck_json')
 def fuck_json():
     data = None
@@ -148,12 +132,6 @@ def hourly_average_json():
             func.count('hour')
         ).group_by('hour').all())
     data = [results[hour] / number_of_days for hour in range(0, 24)]
-    return jsonify(data)
-
-
-@app.route('/hourly_number_json')
-def hourly_number_json():
-    data = None
     return jsonify(data)
 
 
