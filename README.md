@@ -62,9 +62,22 @@ Simply `./run.sh`, or run it manually with `FLASK_APP=app.py flask run`.
 Now go to http://127.0.0.1:5000/ and enjoy!
 
 Each time you launch the Flask application, the current history file is imported
-into an SQLite database (located at `~/.shell_history/db`), and the history file
-is renamed `.shell_history/history.UUID.bak`, where UUID is an auto-generated
-UUID string.
+into an SQLite database (located at `~/.shell_history/db`), and then renamed
+`.shell_history/history.UUID.bak`, where UUID is an auto-generated UUID string.
+
+For more convenience, you can put a script in your PATH, for example in
+`/usr/bin/`, with the following contents:
+
+```bash
+#!/usr/bin/env bash
+
+export SHELLHISTORY_VENV=/path/to/my/virtualenv
+export SHELLHISTORY_FILE=/path/to/my/history_file
+export SHELLHISTORY_DB=/path/to/my/history_db
+
+cd /path/to/shellhistory || exit 1
+./run.sh
+```
 
 ## How it looks
 ![length chart](pictures/length.png)
