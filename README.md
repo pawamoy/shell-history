@@ -125,7 +125,7 @@ Example (multiline command):
 ```
 
 ## Chart ideas
-- usage of builtins, aliases, functions, GNU tools
+You can post your ideas in this issue: https://github.com/Pawamoy/shell-history/issues/9.
 
 ## License
 Software licensed under the
