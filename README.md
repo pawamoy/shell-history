@@ -1,4 +1,4 @@
-# ShellHist
+# Shell History
 Inspired from https://github.com/bamos/zsh-history-analysis.
 
 Visualize your usage of Bash/Zsh through a web app
@@ -18,14 +18,14 @@ specific virtualenv or globally with sudo.
 You will also need Internet connection since assets are not bundled.
 
 ## Installation
-Clone the repo with `git clone https://github.com/Pawamoy/shellhist`.
+Clone the repo with `git clone https://github.com/Pawamoy/shell-history`.
 
-ShellHist needs a lot of info to be able to display various charts. The basic
-shell history is not enough. In order to generate the necessary information,
-you have to source the `shellhist.sh` script.
+`shell-history` needs a lot of info to be able to display various charts.
+The basic shell history is not enough. In order to generate the necessary
+information, you have to source the `shellhistory.sh` script.
 
 It will append your commands in a second file in your home:
-`.shellhist/history`.
+`.shell_history/history`.
 
 **Your shell history configuration will not be modified.**
 
@@ -37,7 +37,7 @@ So, at shell startup, in `.bashrc` or `.zshrc`, put a line like the following:
 
 ```bash
 # make sure nothing is prepended to PROMPT_COMMAND or precmd after this line
-. '/path/to/shellhist/shellhist.sh'
+. '/path/to/shell-history/shellhistory.sh'
 ```
 
 ... and now use your shell normally!
@@ -47,8 +47,9 @@ Simply `./run.sh`, or run it manually with `FLASK_APP=app.py flask run`.
 Now go to http://127.0.0.1:5000/ and enjoy!
 
 Each time you launch the Flask application, the current history file is imported
-into an SQLite database (located at `~/.shellhist/db`), and the history file is
-renamed `.shellhist/history.UUID.bak`, UUID being an auto-generated UUID string.
+into an SQLite database (located at `~/.shell_history/db`), and the history file
+is renamed `.shell_history/history.UUID.bak`, where UUID is an auto-generated
+UUID string.
 
 ## How it looks
 ![length chart](pictures/length.png)
@@ -63,13 +64,13 @@ This is where we compute the stop time, return code and working directory,
 and append the line into our history file.
 
 Values for UUID, parents, hostname, and TTY are computed only once, when
-`shellhist.sh` is sourced. Indeed they do not change during usage of the current
+`shellhistory.sh` is sourced. Indeed they do not change during usage of the current
 shell process. Hostname and TTY are obtained through commands `$(hostname)` and
 `$(tty)`. UUID is generated with command `$(uuidgen)`. Also note that UUID
 is exported in subshells so we know which shell is a subprocess of another, and
 so we are able to group shell processes by "sessions", a session being an opened
 terminal (be it a tab, window, pane or else). Parents are obtained with a
-function that iteratively greps `ps` result with PIDs (see `shellhist.sh`).
+function that iteratively greps `ps` result with PIDs (see `shellhistory.sh`).
 
 Values for user, shell and level are simply obtained through environment
 variables: `$USER`, `$SHELL`, and `$SHLVL`.
@@ -81,10 +82,10 @@ thanks to a trap on the DEBUG signal. From Bash manual about `trap`:
 
 The last command is obtained with the command `fc`. It will feel like your
 history configuration is mimic'd by the extended history. If the commands
-beginning with a space are ignored, `shellhist` will notice it and will not
+beginning with a space are ignored, `shell-history` will notice it and will not
 append these commands. Same for ignored duplicates. If you enter an empty line,
 or hit Control-C before enter, nothing will be appended either. The trick behind
-this is to check the command number in the current history (see `shellhist.sh`
+this is to check the command number in the current history (see `shellhistory.sh`
 for technical details). Note however that if you type the same command in an
 other terminal, it will still be appended, unless you manage to synchronize your
 history between terminals.
