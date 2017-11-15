@@ -14,7 +14,35 @@
   <body>
     <div class="container">
       <header id="header">
-        <h1>Shell History</h1>
+        <div class="row">
+          <div class="col-md-4">
+            <h1>Shell History</h1>
+          </div>
+          <div class="col-md-8">
+            <br>
+            <button id="sync-button" class="btn btn-default" style="display:inline;">Sync data</button>
+            <div id="sync-alert" role="alert" style="display:none; width:100%;">
+              <button type="button" class="close"><span aria-hidden="true">&times;</span></button>
+              <span id="sync-message" style="width:100%;"></span>
+            </div>
+            <script>
+              $(document).ready(function() {
+                $('#sync-alert .close').click(function(e) {
+                  $(this).parent().fadeOut(500);
+                });
+                $("#sync-button").click(function() {
+                  $.getJSON('/update', function(data) {
+                    $('#sync-message').text(data.message);
+                    $('#sync-alert')
+                      .removeClass()
+                      .addClass('alert ' + data.class)
+                      .css('display', 'inline');
+                  });
+                });
+              });
+            </script>
+          </div>
+        </div>
       </header>
       <hr>
       <section id="content">

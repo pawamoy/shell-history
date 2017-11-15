@@ -13,7 +13,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import exc, sessionmaker
 
 DB_PATH = os.getenv('SHELLHISTORY_DB', 'shellhistory.db')
-HISTFILE_PATH = os.environ.get('SHELLHISTORY_FILE', 'shellhistory')
+HISTFILE_PATH = os.getenv('SHELLHISTORY_FILE', 'shellhistory')
 UUID = str(uuid.uuid4())
 
 Base = declarative_base()
@@ -106,10 +106,14 @@ def import_file(path):
             else:
                 # would only happen if file is corrupted
                 raise ValueError('invalid line %s starting with %s' % (i, first_char))
-        history_list.append(current_history)
-    session = Session()
-    session.add_all(history_list)
-    session.commit()
+        if current_history is not None:
+            history_list.append(current_history)
+    if history_list:
+        session = Session()
+        session.add_all(history_list)
+        session.commit()
+        return True
+    return False
 
 
 def backup_file(path):
@@ -121,8 +125,7 @@ def backup_file(path):
 def import_history():
     if not os.path.exists(HISTFILE_PATH):
         raise ValueError('%s: no such file' % HISTFILE_PATH)
-    create_tables()
-    import_file(HISTFILE_PATH)
+    return import_file(HISTFILE_PATH)
 
 
 def backup_history():
@@ -132,10 +135,6 @@ def backup_history():
 
 
 def update():
-    create_tables()
-    try:
-        import_history()
-    except exc.UnmappedInstanceError:
-        pass
-    else:
-        backup_history()
+    changed = import_history()
+    backup_history()
+    return changed

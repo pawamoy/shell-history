@@ -12,7 +12,7 @@ from sqlalchemy import extract, func
 import db
 
 app = Flask(__name__)
-db.update()
+db.create_tables()
 session = db.Session()
 
 # Utils ------------------------------------------------------------------------
@@ -29,12 +29,39 @@ def fractional_year(start, end):
     return time_elapsed / year_duration
 
 
-# Simple views rendering templates ---------------------------------------------
+# Special views ----------------------------------------------------------------
 @app.route('/')
 def home_view():
     return render_template('home.html')
 
 
+@app.route('/update')
+def update_call():
+    data = {'message': None, 'class': None}
+    try:
+        changed = db.update()
+    except Exception as e:
+        data['class'] = 'alert-danger'
+        data['message'] = '%s\n%s: %s' % (
+            'Failed to import current history. '
+            'The following exception occured:',
+            type(e), e
+        )
+    else:
+        if changed:
+            data['class'] = 'alert-info'
+            data['message'] = (
+                'Database successfully updated, '
+                'refresh the page to see the change.'
+            )
+        else:
+            data['class'] = 'alert-success'
+            data['message'] = 'Database already synchronized, nothing changed.'
+
+    return jsonify(data)
+
+
+# Simple views rendering templates ---------------------------------------------
 @app.route('/daily')
 def daily_view():
     return render_template('daily.html')
