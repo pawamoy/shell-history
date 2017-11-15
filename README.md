@@ -53,17 +53,13 @@ pip install -r requirements.txt
 ```
 
 You can specify the path to your virtualenv in the variable `SHELLHISTORY_VENV`
-(by default `run.sh` will use `venv` if it exists).
+(by default `venv` directory will be used, if it exists).
 
 You will also need Internet connection since assets are not bundled.
 
 ## Usage
 Simply `./run.sh`, or run it manually with `FLASK_APP=app.py flask run`.
 Now go to http://127.0.0.1:5000/ and enjoy!
-
-Each time you launch the Flask application, the current history file is imported
-into an SQLite database (located at `~/.shell_history/db`), and then renamed
-`.shell_history/history.UUID.bak`, where UUID is an auto-generated UUID string.
 
 For more convenience, you can put a script in your PATH, for example in
 `/usr/bin/`, with the following contents:

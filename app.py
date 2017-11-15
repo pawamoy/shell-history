@@ -171,6 +171,9 @@ def length_json():
             func.count('length')
         ).group_by('length').all())
 
+    if not results:
+        return jsonify({})
+
     flat_values = []
     for length, number in results.items():
         flat_values.extend([length] * number)
@@ -185,7 +188,15 @@ def length_json():
 
 @app.route('/markov_json')
 def markov_json():
-    data = None
+    words_2 = []
+    w1 = w2 = None
+    for word in session.query(db.History.cmd).order_by(db.History.start).all():
+        w1, w2 = w2, word[0]
+        words_2.append((w1, w2))
+    counter = Counter(words_2)
+    sorted_counter = sorted(
+        (k, v) for k, v in counter.items() if v > 1,
+        key=lambda x: x[1], reverse=True)
     return jsonify(data)
 
 
