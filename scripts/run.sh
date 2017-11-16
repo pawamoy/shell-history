@@ -1,11 +1,11 @@
 #!/bin/bash
 
-working_dir=$(dirname "$(readlink -f "$0")")
+WD="$(dirname "$(dirname "$(readlink -f "$0")")")"
 
 if [ -d "${SHELLHISTORY_VENV}" ]; then
   . "${SHELLHISTORY_VENV}/bin/activate"
-elif [ -d "${working_dir}/venv" ]; then
-  . "${working_dir}/bin/activate"
+elif [ -d "${WD}/venv" ]; then
+  . "${WD}/bin/activate"
 fi
 
 if ! command -v flask >/dev/null; then
@@ -14,6 +14,6 @@ if ! command -v flask >/dev/null; then
   exit 1
 fi
 
-export FLASK_APP="${working_dir}/app.py"
+export FLASK_APP="${WD}/app.py"
 
 flask run

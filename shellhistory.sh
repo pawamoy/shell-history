@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 mkdir "${HOME}/.shell_history/" &>/dev/null
 SHELLHISTORY_FILE="${HOME}/.shell_history/history"
 SHELLHISTORY_DB="${HOME}/.shell_history/db"
@@ -91,7 +92,7 @@ _shellhistory_append() {
     "${dir}" \
     "${SHELL}" \
     "${SHLVL}" \
-    "${type}"
+    "${type}" \
     "${code}" \
     "${cmd}" >> "${SHELLHISTORY_FILE}"
 }

@@ -53,7 +53,7 @@ class HistoryModelView(ModelView):
     # }
 
 
-admin = Admin(app, name='Shell History Admin', template_mode='bootstrap3')
+admin = Admin(app, name='Shell History', template_mode='bootstrap3')
 admin.add_view(HistoryModelView(db.History, session))
 
 

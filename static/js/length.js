@@ -1,60 +1,60 @@
-$(document).ready(function() {
+$(document).ready(function () {
 
-  $.getJSON('/length_json', function(data) {
+  $.getJSON('/length_json', function (data) {
 
     Highcharts.chart('container', {
 
+      title: {
+        text: 'Commands by length'
+      },
+
+      xAxis: {
         title: {
-            text: 'Commands by length'
+          text: 'Command length in characters'
         },
-
-        xAxis: {
-            title: {
-                text: 'Command length in characters'
-            },
-            type: 'logarithmic',
-            minorTickInterval: 1,
-            plotLines: [{
-                value: data.average,
-                color: 'orange',
-                width: 2,
-                label: {
-                    text: 'Average: ' + data.average + ' characters',
-                    align: 'left',
-                    style: {
-                        color: 'gray'
-                    }
-                }
-            }, {
-                value: data.median,
-                color: 'magenta',
-                width: 2,
-                label: {
-                    text: 'Median: ' + data.median + ' characters',
-                    align: 'left',
-                    style: {
-                        color: 'gray'
-                    }
-                }
-            }]
-        },
-
-        yAxis: {
-            title: {
-                text: 'Number of commands'
+        type: 'logarithmic',
+        minorTickInterval: 1,
+        plotLines: [{
+          value: data.average,
+          color: 'orange',
+          width: 2,
+          label: {
+            text: 'Average: ' + data.average + ' characters',
+            align: 'left',
+            style: {
+              color: 'gray'
             }
-        },
-
-        plotOptions: {
-            series: {
-                pointStart: 1
+          }
+        }, {
+          value: data.median,
+          color: 'magenta',
+          width: 2,
+          label: {
+            text: 'Median: ' + data.median + ' characters',
+            align: 'left',
+            style: {
+              color: 'gray'
             }
-        },
+          }
+        }]
+      },
 
-        series: [{
-            name: 'Number of commands',
-            data: data.series
-        }],
+      yAxis: {
+        title: {
+          text: 'Number of commands'
+        }
+      },
+
+      plotOptions: {
+        series: {
+          pointStart: 1
+        }
+      },
+
+      series: [{
+        name: 'Number of commands',
+        data: data.series
+      }],
 
     });
 

@@ -5,7 +5,6 @@ Visualize your usage of Bash/Zsh through a web app
 thanks to Flask and Highcharts.
 
 - [Installation](#installation)
-- [Dependencies](#dependencies)
 - [Usage](#usage)
 - [How it looks](#how-it-looks)
 - [How it works](#how-it-works)
@@ -16,18 +15,12 @@ thanks to Flask and Highcharts.
 ## Installation
 Clone the repo with `git clone https://github.com/Pawamoy/shell-history`.
 
+Run `make install` or `./scripts/setup.sh` to install the dependencies in
+the current directory.
+
 `shell-history` needs a lot of info to be able to display various charts.
 The basic shell history is not enough. In order to generate the necessary
 information, you have to source the `shellhistory.sh` script.
-
-It will append your commands in a second file in your home:
-`.shell_history/history`.
-
-**Your shell history configuration will not be modified.**
-
-Only two things will be modified in your shell environment:
-- your `PROMPT_COMMAND` variable for Bash, or your `precmd` function for Zsh,
-- the trap on `DEBUG` signal.
 
 So, at shell startup, in `.bashrc` or `.zshrc`, put a line like the following:
 
@@ -38,27 +31,8 @@ So, at shell startup, in `.bashrc` or `.zshrc`, put a line like the following:
 
 ... and now use your shell normally!
 
-## Dependencies
-To launch the web app, you will need to install some Python packages:
-`pip install -r requirements.txt`.
-
-Python 2 is not supported right now, so unless your system Python is version 3
-or above, install them in a Python 3 virtualenv with:
-
-```bash
-sudo apt-get install python-virtualenv
-virtualenv -p python3 venv
-. venv/bin/activate
-pip install -r requirements.txt
-```
-
-You can specify the path to your virtualenv in the variable `SHELLHISTORY_VENV`
-(by default `venv` directory will be used, if it exists).
-
-You will also need Internet connection since assets are not bundled.
-
 ## Usage
-Simply `./run.sh`, or run it manually with `FLASK_APP=app.py flask run`.
+Launch the web app with `make run` or `./scripts/run.sh`.
 Now go to http://127.0.0.1:5000/ and enjoy!
 
 For more convenience, you can put a script in your PATH, for example in
@@ -67,13 +41,16 @@ For more convenience, you can put a script in your PATH, for example in
 ```bash
 #!/usr/bin/env bash
 
-export SHELLHISTORY_VENV=/path/to/my/virtualenv
-export SHELLHISTORY_FILE=/path/to/my/history_file
-export SHELLHISTORY_DB=/path/to/my/history_db
+SHELLHISTORY_DIR=/path/to/shell-history  # update this line
+export SHELLHISTORY_VENV=${SHELLHISTORY_DIR}/venv
+export SHELLHISTORY_FILE=~/.shell_history/history
+export SHELLHISTORY_DB=~/.shell_history/db
 
-cd /path/to/shellhistory || exit 1
-./run.sh
+cd ${SHELLHISTORY_DIR} || exit 1
+./scripts/run.sh
 ```
+
+You will need Internet connection since assets are not bundled.
 
 ## How it looks
 ![length chart](pictures/length.png)
