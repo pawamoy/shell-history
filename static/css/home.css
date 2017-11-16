@@ -19,3 +19,9 @@ footer {
 #sync-close:hover {
   text-decoration: none;
 }
+
+#welcome-title {
+  /*position: relative;*/
+  /*left: 40px;*/
+  text-align: center;
+}
