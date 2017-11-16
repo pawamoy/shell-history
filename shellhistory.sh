@@ -37,6 +37,14 @@ _shellhistory_last_command_number() {
   fc -lr -0 | head -n1 | cut -f1
 }
 
+_shellhistory_bash_command_type() {
+  type -t $1
+}
+
+_shellhistory_zsh_command_type() {
+  whence -w $1 | cut -d' ' -f2
+}
+
 _shellhistory_timer_now() {
   local now
   now=$(date '+%s%N')
@@ -61,14 +69,18 @@ _shellhistory_can_append() {
 }
 
 _shellhistory_append() {
-  local now dir code=$1
+  local now dir cmd type exec code=$1
   # immediately get time
   now=$(_shellhistory_timer_now)
   # check that we can append
   ! _shellhistory_can_append && return 1
   # avoid delimiter corruption
   dir="$(base64 -w0 <<<"${PWD}")"
-  printf ":%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s\n" \
+  cmd="$(_shellhistory_last_command)"
+  # FIXME: what about "VAR=value command do something"?
+  exec="${cmd%% *}"
+  type="$(_shellhistory_command_type "${exec}")"
+  printf ":%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s\n" \
     "${_SHELLHISTORY_TIMER}" \
     "${now}" \
     "${_SHELLHISTORY_UUID}" \
@@ -79,8 +91,9 @@ _shellhistory_append() {
     "${dir}" \
     "${SHELL}" \
     "${SHLVL}" \
+    "${type}"
     "${code}" \
-    "$(_shellhistory_last_command)" >> "${SHELLHISTORY_FILE}"
+    "${cmd}" >> "${SHELLHISTORY_FILE}"
 }
 
 enable_shellhistory() {
@@ -110,7 +123,9 @@ enable_shellhistory
 
 if [ "${ZSH_VERSION}" ]; then
   # FIXME: don't override possible previous contents of precmd
+  _shellhistory_command_type() { _shellhistory_zsh_command_type "$1"; }
   precmd() { _shellhistory $?; }
 elif [ "${BASH_VERSION}" ]; then
+  _shellhistory_command_type() { _shellhistory_bash_command_type "$1"; }
   PROMPT_COMMAND='_shellhistory $?;'$'\n'"${PROMPT_COMMAND}"
 fi

@@ -5,18 +5,60 @@ from collections import Counter, defaultdict
 from datetime import datetime
 import statistics
 
-from dateutil.relativedelta import relativedelta
 from flask import Flask, jsonify, render_template
-from sqlalchemy import extract, func
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
+from sqlalchemy import extract, func, select
 
 import db
 
+
+# Initialization and constants ------------------------------------------------
 app = Flask(__name__)
+app.secret_key = '2kQOLbr6NtfHV0wIItjHWzuwsgCUXA4CSSBWFE9yELqrkSZU'
 db.create_tables()
 session = db.Session()
 
-# Utils ------------------------------------------------------------------------
-def since_epoch(date): # returns seconds since epoch
+
+# Flask Admin stuff -----------------------------------------------------------
+class HistoryModelView(ModelView):
+    can_create = False
+    can_delete = True
+    can_view_details = True
+    create_modal = True
+    edit_modal = True
+    can_export = True
+    page_size = 50
+
+    list_template = 'admin/history_list.html'
+
+    column_exclude_list = ['parents']
+    column_searchable_list = [
+        'id', 'start', 'stop', 'duration', 'host', 'user', 'uuid', 'tty',
+        'parents', 'shell', 'level', 'type', 'code', 'path', 'cmd'
+    ]
+    column_filters = [
+        'host', 'user', 'uuid', 'tty', 'parents',
+        'shell', 'level', 'type', 'code', 'path', 'cmd'
+    ]
+    column_editable_list = [
+        'host', 'user', 'uuid', 'tty',
+        'shell', 'level', 'type', 'code', 'path', 'cmd'
+    ]
+    form_excluded_columns = ['start', 'stop', 'duration']
+    # form_widget_args = {
+    #     'start': {'format': '%Y-%m-%d %H:%M:%S.%f'},
+    #     'stop': {'format': '%Y-%m-%d %H:%M:%S.%f'},
+    #     'duration': {'format': '%Y-%m-%d %H:%M:%S.%f'}
+    # }
+
+
+admin = Admin(app, name='Shell History Admin', template_mode='bootstrap3')
+admin.add_view(HistoryModelView(db.History, session))
+
+
+# Utils -----------------------------------------------------------------------
+def since_epoch(date):
     return time.mktime(date.timetuple())
 
 
@@ -29,7 +71,7 @@ def fractional_year(start, end):
     return time_elapsed / year_duration
 
 
-# Special views ----------------------------------------------------------------
+# Special views ---------------------------------------------------------------
 @app.route('/')
 def home_view():
     return render_template('home.html')
@@ -61,7 +103,7 @@ def update_call():
     return jsonify(data)
 
 
-# Simple views rendering templates ---------------------------------------------
+# Simple views rendering templates --------------------------------------------
 @app.route('/daily')
 def daily_view():
     return render_template('daily.html')
@@ -127,7 +169,7 @@ def type_view():
     return render_template('type.html')
 
 
-# Routes to return JSON contents -----------------------------------------------
+# Routes to return JSON contents ----------------------------------------------
 @app.route('/daily_json')
 def daily_json():
     data = None
@@ -142,9 +184,8 @@ def fuck_json():
 
 @app.route('/hourly_json')
 def hourly_json():
-    results = defaultdict(
-        lambda: 0,
-        session.query(
+    results = defaultdict(lambda: 0)
+    results.update(session.query(
             extract('hour', db.History.start).label('hour'),
             func.count('hour')
         ).group_by('hour').all())
@@ -157,21 +198,20 @@ def hourly_average_json():
     mintime = session.query(func.min(db.History.start)).first()[0]
     maxtime = session.query(func.max(db.History.start)).first()[0]
     number_of_days = (maxtime - mintime).days + 1
-    results = defaultdict(
-        lambda: 0,
-        session.query(
+    results = defaultdict(lambda: 0)
+    results.update(session.query(
             extract('hour', db.History.start).label('hour'),
             func.count('hour')
         ).group_by('hour').all())
-    data = [float('%.2f' % (results[hour] / number_of_days)) for hour in range(0, 24)]
+    data = [float('%.2f' % (results[hour] / number_of_days))
+            for hour in range(0, 24)]
     return jsonify(data)
 
 
 @app.route('/length_json')
 def length_json():
-    results = defaultdict(
-        lambda: 0,
-        session.query(
+    results = defaultdict(lambda: 0)
+    results.update(session.query(
             func.char_length(db.History.cmd).label('length'),
             func.count('length')
         ).group_by('length').all())
@@ -186,7 +226,8 @@ def length_json():
     data = {
         'average': float('%.2f' % statistics.mean(flat_values)),
         'median': statistics.median(flat_values),
-        'series': [results[length] for length in range(1, max(results.keys()) + 1)]
+        'series': [results[length]
+                   for length in range(1, max(results.keys()) + 1)]
     }
     return jsonify(data)
 
@@ -194,7 +235,7 @@ def length_json():
 @app.route('/markov_json')
 def markov_json():
     words_2 = []
-    w1 = w2 = None
+    w2 = None
     words = session.query(db.History.cmd).order_by(db.History.start).all()
     for word in words:
         w1, w2 = w2, word[0].split(' ')[0]
@@ -219,7 +260,7 @@ def markov_json():
 @app.route('/markov_full_json')
 def markov_full_json():
     words_2 = []
-    w1 = w2 = None
+    w2 = None
     words = session.query(db.History.cmd).order_by(db.History.start).all()
     for word in words:
         w1, w2 = w2, word[0]
@@ -243,9 +284,8 @@ def markov_full_json():
 
 @app.route('/monthly_json')
 def monthly_json():
-    results = defaultdict(
-        lambda: 0,
-        session.query(
+    results = defaultdict(lambda: 0)
+    results.update(session.query(
             extract('month', db.History.start).label('month'),
             func.count('month')
         ).group_by('month').all())
@@ -258,13 +298,13 @@ def monthly_average_json():
     mintime = session.query(func.min(db.History.start)).first()[0]
     maxtime = session.query(func.max(db.History.start)).first()[0]
     number_of_years = fractional_year(mintime, maxtime) + 1
-    results = defaultdict(
-        lambda: 0,
-        session.query(
+    results = defaultdict(lambda: 0)
+    results.update(session.query(
             extract('month', db.History.start).label('month'),
             func.count('month')
         ).group_by('month').all())
-    data = [float('%.2f' % (results[month] / number_of_years)) for month in range(1, 13)]
+    data = [float('%.2f' % (results[month] / number_of_years))
+            for month in range(1, 13)]
     return jsonify(data)
 
 
@@ -288,5 +328,20 @@ def trending_json():
 
 @app.route('/type_json')
 def type_json():
-    data = None
+    results = session.query(
+        db.History.type,
+        func.count(db.History.type)
+    ).group_by(db.History.type).all()
+    # total = sum(r[1] for r in results)
+    data = [
+        {'name': r[0] or 'none', 'y': r[1]}
+        for r in sorted(results, key=lambda x: x[1], reverse=True)
+    ]
     return jsonify(data)
+
+
+@app.route('/wordcloud_json')
+def wordcloud_json():
+    results = session.query(db.History.cmd).order_by(func.random()).limit(100)
+    text = ' '.join(r[0] for r in results.all())
+    return jsonify(text)

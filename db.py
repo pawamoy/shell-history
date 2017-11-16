@@ -1,16 +1,14 @@
 import os
 import shutil
-import sys
-import time
 import uuid
 from base64 import b64decode
 from collections import namedtuple
 from datetime import datetime
 
-from sqlalchemy import (Column, DateTime, Integer, String, Text, UnicodeText,
-                        UniqueConstraint, create_engine)
+from sqlalchemy import (Column, DateTime, Integer, Interval, String, Text,
+                        UnicodeText, UniqueConstraint, create_engine)
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import exc, sessionmaker
+from sqlalchemy.orm import sessionmaker
 
 DB_PATH = os.getenv('SHELLHISTORY_DB', 'shellhistory.db')
 HISTFILE_PATH = os.getenv('SHELLHISTORY_FILE', 'shellhistory')
@@ -28,6 +26,7 @@ class History(Base):
     id = Column(Integer, primary_key=True)
     start = Column(DateTime)
     stop = Column(DateTime)
+    duration = Column(Interval)
     host = Column(String)
     user = Column(String)
     uuid = Column(String)
@@ -35,6 +34,7 @@ class History(Base):
     parents = Column(Text)
     shell = Column(String)
     level = Column(Integer)
+    type = Column(String)
     code = Column(Integer)
     path = Column( String)
     cmd = Column(UnicodeText)
@@ -60,27 +60,30 @@ def delete_table(table=History):
 def line_split(line):
     return namedtuple(
         'history',
-        'start stop uuid parents host user tty path shell level code cmd')(
-            *line.split(':', 11))
+        'start stop uuid parents host user tty '
+        'path shell level type code cmd')(
+            *line.split(':', 12))
 
 
 def namedtuple_to_history(nt):
-    try:
-        return History(
-            start=datetime.fromtimestamp(float(nt.start)/1000000.0),
-            stop=datetime.fromtimestamp(float(nt.stop)/1000000.0),
-            host=nt.host,
-            user=nt.user,
-            path=b64decode(nt.path).decode().rstrip('\n'),
-            uuid=nt.uuid,
-            tty=nt.tty,
-            parents=b64decode(nt.parents).decode().rstrip('\n'),
-            shell=nt.shell,
-            level=nt.level,
-            code=nt.code,
-            cmd=nt.cmd)
-    except ValueError:
-        print(nt)
+    start = datetime.fromtimestamp(float(nt.start)/1000000.0)
+    stop = datetime.fromtimestamp(float(nt.stop)/1000000.0)
+    duration = stop - start
+    return History(
+        start=start,
+        stop=stop,
+        duration=duration,
+        host=nt.host,
+        user=nt.user,
+        path=b64decode(nt.path).decode().rstrip('\n'),
+        uuid=nt.uuid,
+        tty=nt.tty,
+        parents=b64decode(nt.parents).decode().rstrip('\n'),
+        shell=nt.shell,
+        level=nt.level,
+        type=nt.type,
+        code=nt.code,
+        cmd=nt.cmd)
 
 
 def line_to_history(line):
@@ -105,7 +108,8 @@ def import_file(path):
                 current_history.cmd += '\n' + line
             else:
                 # would only happen if file is corrupted
-                raise ValueError('invalid line %s starting with %s' % (i, first_char))
+                raise ValueError('invalid line %s starting with %s' % (
+                    i, first_char))
         if current_history is not None:
             history_list.append(current_history)
     if history_list:
