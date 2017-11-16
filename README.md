@@ -90,7 +90,7 @@ has returned.
 
 This is where we compute the start and stop time, return code, working
 directory and command type, and append the line into our history file.
-Start and stop time are obtained with `$(date '+%s%N)`, return code is passed
+Start and stop time are obtained with `$(date '+%s%N')`, return code is passed
 directly with `$?`, working directory is obtained with `$PWD` and command
 type with `$(type -t arg)` for Bash and `$(type -w arg)` for Zsh.
 
@@ -123,8 +123,8 @@ history between terminals.
 
 ## History file format
 Fields saved along commands are start and stop timestamps, hostname, username,
-uuid (generated), tty, process' parents, shell, shell level, return code, and
-working directory (path), in the following format:
+uuid (generated), tty, process' parents, shell, shell level, command type,
+return code, and working directory (path), in the following format:
 `:start:stop:uuid:parents:host:user:tty:path:shell:level:type:code:command`.
 
 - multiline commands are prepended with a semi-colon `;` instead of a colon `:`,
