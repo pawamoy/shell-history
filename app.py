@@ -92,6 +92,11 @@ def markov_view():
     return render_template('markov.html')
 
 
+@app.route('/markov_full')
+def markov_full_view():
+    return render_template('markov_full.html')
+
+
 @app.route('/monthly')
 def monthly_view():
     return render_template('monthly.html')
@@ -158,7 +163,7 @@ def hourly_average_json():
             extract('hour', db.History.start).label('hour'),
             func.count('hour')
         ).group_by('hour').all())
-    data = [results[hour] / number_of_days for hour in range(0, 24)]
+    data = [float('%.2f' % (results[hour] / number_of_days)) for hour in range(0, 24)]
     return jsonify(data)
 
 
@@ -190,13 +195,49 @@ def length_json():
 def markov_json():
     words_2 = []
     w1 = w2 = None
-    for word in session.query(db.History.cmd).order_by(db.History.start).all():
+    words = session.query(db.History.cmd).order_by(db.History.start).all()
+    for word in words:
+        w1, w2 = w2, word[0].split(' ')[0]
+        words_2.append((w1, w2))
+    counter = Counter(words_2).most_common(40)
+    unique_words = set()
+    for (w1, w2), count in counter:
+        unique_words.add(w1)
+        unique_words.add(w2)
+    unique_words = list(unique_words)
+    data = {
+        'xCategories': unique_words,
+        'yCategories': unique_words,
+        'series': [
+            [unique_words.index(w2), unique_words.index(w1), count]
+            for (w1, w2), count in counter
+        ]
+    }
+    return jsonify(data)
+
+
+@app.route('/markov_full_json')
+def markov_full_json():
+    words_2 = []
+    w1 = w2 = None
+    words = session.query(db.History.cmd).order_by(db.History.start).all()
+    for word in words:
         w1, w2 = w2, word[0]
         words_2.append((w1, w2))
-    counter = Counter(words_2)
-    sorted_counter = sorted(
-        (k, v) for k, v in counter.items() if v > 1,
-        key=lambda x: x[1], reverse=True)
+    counter = Counter(words_2).most_common(40)
+    unique_words = set()
+    for (w1, w2), count in counter:
+        unique_words.add(w1)
+        unique_words.add(w2)
+    unique_words = list(unique_words)
+    data = {
+        'xCategories': unique_words,
+        'yCategories': unique_words,
+        'series': [
+            [unique_words.index(w2), unique_words.index(w1), count]
+            for (w1, w2), count in counter
+        ]
+    }
     return jsonify(data)
 
 

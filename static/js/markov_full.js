@@ -1,6 +1,6 @@
 $(document).ready(function() {
 
-  $.getJSON('/markov_json', function(data) {
+  $.getJSON('/markov_full_json', function(data) {
 
     Highcharts.chart('container', {
 
@@ -12,7 +12,7 @@ $(document).ready(function() {
         },
 
         title: {
-            text: 'Markov chain'
+            text: 'Markov chain (full commands)'
         },
 
         xAxis: {
