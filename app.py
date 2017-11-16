@@ -114,11 +114,6 @@ def daily_average_view():
     return render_template('daily_average.html')
 
 
-@app.route('/fuck')
-def fuck_view():
-    return render_template('fuck.html')
-
-
 @app.route('/hourly')
 def hourly_view():
     return render_template('hourly.html')
@@ -198,12 +193,6 @@ def daily_average_json():
     ).group_by('day').all())
     data = [float('%.2f' % (results[str(day)] / number_of_weeks))
             for day in range(1, 8)]
-    return jsonify(data)
-
-
-@app.route('/fuck_json')
-def fuck_json():
-    data = None
     return jsonify(data)
 
 

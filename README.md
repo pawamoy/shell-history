@@ -78,7 +78,8 @@ cd /path/to/shellhistory || exit 1
 ## How it looks
 ![length chart](pictures/length.png)
 ![markov chart](pictures/markov.png)
-![hourly chart](pictures/hourly.png)
+![daily chart](pictures/daily.png)
+![type chart](pictures/type.png)
 
 ## How it works
 In order to append a line each time a command is entered, the `PROMPT_COMMAND`
