@@ -83,11 +83,15 @@ cd /path/to/shellhistory || exit 1
 ## How it works
 In order to append a line each time a command is entered, the `PROMPT_COMMAND`
 variable and the `precmd` function are used, respectively for Bash and Zsh.
-They allow us to execute arbitrary instructions just before the command prompt
-is displayed, meaning, just after the last command has returned.
+They allow us to execute arbitrary instructions just before command execution,
+or before the command prompt is displayed, meaning, just after the last command
+has returned.
 
-This is where we compute the stop time, return code and working directory,
-and append the line into our history file.
+This is where we compute the start and stop time, return code, working
+directory and command type, and append the line into our history file.
+Start and stop time are obtained with `$(date '+%s%N)`, return code is passed
+directly with `$?`, working directory is obtained with `$PWD` and command
+type with `$(type -t arg)` for Bash and `$(type -w arg)` for Zsh.
 
 Values for UUID, parents, hostname, and TTY are computed only once, when
 `shellhistory.sh` is sourced. Indeed they do not change during usage of the current
@@ -98,7 +102,7 @@ so we are able to group shell processes by "sessions", a session being an opened
 terminal (be it a tab, window, pane or else). Parents are obtained with a
 function that iteratively greps `ps` result with PIDs (see `shellhistory.sh`).
 
-Values for user, shell and level are simply obtained through environment
+Values for user, shell, and level are simply obtained through environment
 variables: `$USER`, `$SHELL`, and `$SHLVL`.
 
 Start time is computed just before the entered command is run by the shell,
@@ -120,7 +124,7 @@ history between terminals.
 Fields saved along commands are start and stop timestamps, hostname, username,
 uuid (generated), tty, process' parents, shell, shell level, return code, and
 working directory (path), in the following format:
-`:start:stop:uuid:parents:host:user:tty:path:shell:level:code:command`.
+`:start:stop:uuid:parents:host:user:tty:path:shell:level:type:code:command`.
 
 - multiline commands are prepended with a semi-colon `;` instead of a colon `:`,
   starting at second line
@@ -131,7 +135,7 @@ working directory (path), in the following format:
 Example (multiline command):
 
 ```
-:1510588139930150:1510588139936608:40701d9b-1807-4a3e-994b-dde68692aa14:L2Jpbi9iYXNoCi91c3IvYmluL3B5dGhvbiAvdXNyL2Jpbi94LXRlcm1pbmFsLWVtdWxhdG9yCi91c3IvYmluL29wZW5ib3ggLS1zdGFydHVwIC91c3IvbGliL3g4Nl82NC1saW51eC1nbnUvb3BlbmJveC1hdXRvc3RhcnQgT1BFTkJPWApsaWdodGRtIC0tc2Vzc2lvbi1jaGlsZCAxMiAyMQovdXNyL3NiaW4vbGlnaHRkbQovc2Jpbi9pbml0Cg==:myhost:pawamoy:/dev/pts/1:L21lZGlhL3Bhd2Ftb3kvRGF0YS9naXQvc2hlbGxoaXN0Cg==:/bin/bash:1:0:echo 'a
+:1510588139930150:1510588139936608:40701d9b-1807-4a3e-994b-dde68692aa14:L2Jpbi9iYXNoCi91c3IvYmluL3B5dGhvbiAvdXNyL2Jpbi94LXRlcm1pbmFsLWVtdWxhdG9yCi91c3IvYmluL29wZW5ib3ggLS1zdGFydHVwIC91c3IvbGliL3g4Nl82NC1saW51eC1nbnUvb3BlbmJveC1hdXRvc3RhcnQgT1BFTkJPWApsaWdodGRtIC0tc2Vzc2lvbi1jaGlsZCAxMiAyMQovdXNyL3NiaW4vbGlnaHRkbQovc2Jpbi9pbml0Cg==:myhost:pawamoy:/dev/pts/1:L21lZGlhL3Bhd2Ftb3kvRGF0YS9naXQvc2hlbGxoaXN0Cg==:/bin/bash:1:builtin:0:echo 'a
 ;b
 ;c' | wc -c
 ```
