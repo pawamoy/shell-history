@@ -1,6 +1,6 @@
 $(document).ready(function() {
 
-  $.getJSON('/daily_json', function(data) {
+  $.getJSON('/daily_average_json', function (data) {
 
       Highcharts.chart('container', {
         chart: {
