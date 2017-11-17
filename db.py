@@ -6,7 +6,7 @@ from collections import namedtuple
 from datetime import datetime
 
 from sqlalchemy import (Column, DateTime, Integer, Interval, String, Text,
-                        UnicodeText, UniqueConstraint, create_engine)
+                        UnicodeText, UniqueConstraint, create_engine, exc)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -90,46 +90,57 @@ def line_to_history(line):
     return namedtuple_to_history(line_split(line))
 
 
-def import_file(path):
-    history_list = []
+def parse_file(path):
+    obj_list = []
     with open(path) as stream:
-        current_history = None
+        current_obj = None
         for i, line in enumerate(stream, 1):
             first_char, line = line[0], line[1:].rstrip('\n')
             if first_char == ':':
                 # new command
-                if current_history is not None:
-                    history_list.append(current_history)
-                current_history = line_to_history(line)
+                if current_obj is not None:
+                    obj_list.append(current_obj)
+                current_obj = line_to_history(line)
             elif first_char == ';':
                 # multiline command
-                if current_history is None:
+                if current_obj is None:
                     continue  # orphan line
-                current_history.cmd += '\n' + line
+                current_obj.cmd += '\n' + line
             else:
                 # would only happen if file is corrupted
                 raise ValueError('invalid line %s starting with %s' % (
                     i, first_char))
-        if current_history is not None:
-            history_list.append(current_history)
-    if history_list:
-        session = Session()
-        session.add_all(history_list)
-        session.commit()
-        return True
-    return False
+        if current_obj is not None:
+            obj_list.append(current_obj)
+    return obj_list
+
+
+def insert(obj_list, session, one_by_one=False):
+    report = namedtuple('report', 'inserted duplicates')
+    if obj_list:
+        if one_by_one:
+            duplicates, inserted = 0, 0
+            for obj in obj_list:
+                try:
+                    session.add(obj)
+                    session.commit()
+                    inserted += 1
+                except exc.IntegrityError:
+                    session.rollback()
+                    duplicates += 1
+            return report(inserted, duplicates)
+        else:
+            session.add_all(obj_list)
+            session.commit()
+            return report(len(obj_list), 0)
+    return report(0, 0)
 
 
 def backup_file(path):
     backup_path = '%s.%s.bak' % (path, UUID)
     shutil.move(path, backup_path)
     with open(path, 'a'):
-        os.utime(path)
-
-def import_history():
-    if not os.path.exists(HISTFILE_PATH):
-        raise ValueError('%s: no such file' % HISTFILE_PATH)
-    return import_file(HISTFILE_PATH)
+        os.utime(path, None)
 
 
 def backup_history():
@@ -138,7 +149,28 @@ def backup_history():
     backup_file(HISTFILE_PATH)
 
 
+def import_file(path):
+    obj_list = parse_file(path)
+    session = Session()
+    try:
+        report = insert(obj_list, session)
+    except exc.IntegrityError:
+        session.rollback()
+        report = insert(obj_list, session, one_by_one=True)
+    return report
+
+
+def import_history():
+    if not os.path.exists(HISTFILE_PATH):
+        raise ValueError('%s: no such file' % HISTFILE_PATH)
+    return import_file(HISTFILE_PATH)
+
+
 def update():
-    changed = import_history()
-    backup_history()
-    return changed
+    try:
+        report = import_history()
+    except exc.OperationalError:
+        create_tables()
+        report = import_history()
+    # backup_history()
+    return report

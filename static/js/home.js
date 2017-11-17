@@ -7,8 +7,8 @@ $(document).ready(function () {
       $('#sync-message').text(data.message);
       $('#sync-alert')
         .removeClass()
-        .addClass('alert ' + data.class)
-        .css('display', 'inline');
+        .addClass(data.class)
+        .show();
     });
   });
 });

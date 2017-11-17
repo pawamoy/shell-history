@@ -17,7 +17,6 @@ import db
 app = Flask(__name__)
 app.secret_key = '2kQOLbr6NtfHV0wIItjHWzuwsgCUXA4CSSBWFE9yELqrkSZU'
 db.create_tables()
-session = db.Session()
 
 
 # Flask Admin stuff -----------------------------------------------------------
@@ -54,7 +53,7 @@ class HistoryModelView(ModelView):
 
 
 admin = Admin(app, name='Shell History', template_mode='bootstrap3')
-admin.add_view(HistoryModelView(db.History, session))
+admin.add_view(HistoryModelView(db.History, db.Session()))
 
 
 # Utils -----------------------------------------------------------------------
@@ -81,23 +80,27 @@ def home_view():
 def update_call():
     data = {'message': None, 'class': None}
     try:
-        changed = db.update()
+        report = db.update()
     except Exception as e:
-        data['class'] = 'alert-danger'
+        data['class'] = 'danger'
         data['message'] = '%s\n%s: %s' % (
             'Failed to import current history. '
             'The following exception occured:',
             type(e), e
         )
     else:
-        if changed:
-            data['class'] = 'alert-info'
+        if report.inserted:
+            data['class'] = 'success'
             data['message'] = (
-                'Database successfully updated, '
-                'refresh the page to see the change.'
+                'Database successfully updated (%s new items), '
+                'refresh the page to see the change.' % report.inserted
             )
+            if report.duplicates:
+                data['class'] = 'info'
+                data['message'] += '\n%s duplicates were not imported.' % report.duplicates
+
         else:
-            data['class'] = 'alert-success'
+            data['class'] = 'default'
             data['message'] = 'Database already synchronized, nothing changed.'
 
     return jsonify(data)
@@ -172,6 +175,7 @@ def type_view():
 # Routes to return JSON contents ----------------------------------------------
 @app.route('/daily_json')
 def daily_json():
+    session = db.Session()
     results = defaultdict(lambda: 0)
     results.update(session.query(
         func.strftime('%w', db.History.start).label('day'),
@@ -183,6 +187,7 @@ def daily_json():
 
 @app.route('/daily_average_json')
 def daily_average_json():
+    session = db.Session()
     mintime = session.query(func.min(db.History.start)).first()[0]
     maxtime = session.query(func.max(db.History.start)).first()[0]
     number_of_weeks = (maxtime - mintime).days / 7 + 1
@@ -198,6 +203,7 @@ def daily_average_json():
 
 @app.route('/hourly_json')
 def hourly_json():
+    session = db.Session()
     results = defaultdict(lambda: 0)
     results.update(session.query(
             extract('hour', db.History.start).label('hour'),
@@ -209,6 +215,7 @@ def hourly_json():
 
 @app.route('/hourly_average_json')
 def hourly_average_json():
+    session = db.Session()
     mintime = session.query(func.min(db.History.start)).first()[0]
     maxtime = session.query(func.max(db.History.start)).first()[0]
     number_of_days = (maxtime - mintime).days + 1
@@ -224,6 +231,7 @@ def hourly_average_json():
 
 @app.route('/length_json')
 def length_json():
+    session = db.Session()
     results = defaultdict(lambda: 0)
     results.update(session.query(
             func.char_length(db.History.cmd).label('length'),
@@ -248,6 +256,7 @@ def length_json():
 
 @app.route('/markov_json')
 def markov_json():
+    session = db.Session()
     words_2 = []
     w2 = None
     words = session.query(db.History.cmd).order_by(db.History.start).all()
@@ -273,6 +282,7 @@ def markov_json():
 
 @app.route('/markov_full_json')
 def markov_full_json():
+    session = db.Session()
     words_2 = []
     w2 = None
     words = session.query(db.History.cmd).order_by(db.History.start).all()
@@ -298,6 +308,7 @@ def markov_full_json():
 
 @app.route('/monthly_json')
 def monthly_json():
+    session = db.Session()
     results = defaultdict(lambda: 0)
     results.update(session.query(
             extract('month', db.History.start).label('month'),
@@ -309,6 +320,7 @@ def monthly_json():
 
 @app.route('/monthly_average_json')
 def monthly_average_json():
+    session = db.Session()
     mintime = session.query(func.min(db.History.start)).first()[0]
     maxtime = session.query(func.max(db.History.start)).first()[0]
     number_of_years = fractional_year(mintime, maxtime) + 1
@@ -324,24 +336,28 @@ def monthly_average_json():
 
 @app.route('/top_commands_full_json')
 def top_commands_full_json():
+    session = db.Session()
     data = None
     return jsonify(data)
 
 
 @app.route('/top_commands_json')
 def top_commands_json():
+    session = db.Session()
     data = None
     return jsonify(data)
 
 
 @app.route('/trending_json')
 def trending_json():
+    session = db.Session()
     data = None
     return jsonify(data)
 
 
 @app.route('/type_json')
 def type_json():
+    session = db.Session()
     results = session.query(
         db.History.type,
         func.count(db.History.type)
@@ -356,6 +372,7 @@ def type_json():
 
 @app.route('/wordcloud_json')
 def wordcloud_json():
+    session = db.Session()
     results = session.query(db.History.cmd).order_by(func.random()).limit(100)
     text = ' '.join(r[0] for r in results.all())
     return jsonify(text)
