@@ -36,7 +36,7 @@ class History(Base):
     level = Column(Integer)
     type = Column(String)
     code = Column(Integer)
-    path = Column( String)
+    path = Column(String)
     cmd = Column(UnicodeText)
 
     def __repr__(self):
