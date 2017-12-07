@@ -20,16 +20,20 @@ the current directory.
 
 `shell-history` needs a lot of info to be able to display various charts.
 The basic shell history is not enough. In order to generate the necessary
-information, you have to source the `shellhistory.sh` script.
+information, you have to source the `shellhistory.sh` script, and activate
+`shell-history`.
 
-So, at shell startup, in `.bashrc` or `.zshrc`, put a line like the following:
+So, at shell startup, in `.bashrc` or `.zshrc`, put the following:
 
 ```bash
 # make sure nothing is prepended to PROMPT_COMMAND or precmd after this line
 . '/path/to/shell-history/shellhistory.sh'
+shellhistory enable
 ```
 
 ... and now use your shell normally!
+
+If you want to stop `shell-history`, simply run `shellhistory disable`.
 
 ## Usage
 Launch the web app with `make run` or `./scripts/run.sh`.

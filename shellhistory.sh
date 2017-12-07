@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 # FUNCTIONS --------------------------------------------------------------------
-
 # shellcheck disable=SC2120
 _shellhistory_parents() {
   local list pid
@@ -76,13 +75,9 @@ _shellhistory_can_append() {
 }
 
 _shellhistory_append() {
-  ! _shellhistory_can_append && return 1
-  # if [ ${_SHELLHISTORY_APPEND_TO_FILE} -eq 1 ]; then
+  if _shellhistory_can_append; then
     _shellhistory_append_to_file
-  # fi
-  # if [ ${_SHELLHISTORY_APPEND_TO_DB} -eq 1 ]; then
-    # _shellhistory_append_to_db
-  # fi
+  fi
 }
 
 _shellhistory_append_to_file() {
@@ -100,31 +95,6 @@ _shellhistory_append_to_file() {
     "${_SHELLHISTORY_TYPE}" \
     "${_SHELLHISTORY_CODE}" \
     "${_SHELLHISTORY_COMMAND}" >> "${SHELLHISTORY_FILE}"
-}
-
-_shellhistory_append_to_db() {
-  # FIXME: datetime as "YYYY-MM-DD HH:MM:SS.SSS"
-  # FIXME: compute duration
-  # FIXME: sanitize!!!!
-  local query="insert into history (start,stop,duration,host,user,uuid,tty,parents,shell,level,type,code,path,cmd) values (
-    '${_SHELLHISTORY_START_TIME}',
-    '${_SHELLHISTORY_STOP_TIME}',
-    '0',
-    '${_SHELLHISTORY_HOSTNAME}',
-    '${USER}',
-    '${_SHELLHISTORY_UUID}',
-    '${_SHELLHISTORY_TTY}',
-    '${_SHELLHISTORY_PARENTS}',
-    '${SHELL}',
-    ${SHLVL},
-    '${_SHELLHISTORY_TYPE}',
-    ${_SHELLHISTORY_CODE},
-    '${_SHELLHISTORY_PWD}',
-    '${_SHELLHISTORY_COMMAND}'
-  );"
-
-  # FIXME: commented out for security reasons
-  # sqlite3 "${SHELLHISTORY_DB}" "${query}"
 }
 
 _shellhistory_before() {
@@ -145,10 +115,10 @@ _shellhistory_enable() {
   if [ "${ZSH_VERSION}" ]; then
     _shellhistory_command_type() { _shellhistory_zsh_command_type "$1"; }
       # FIXME: don't override possible previous contents of precmd
-    precmd() { shellhistory run; }
+    precmd() { _shellhistory_run; }
   elif [ "${BASH_VERSION}" ]; then
     _shellhistory_command_type() { _shellhistory_bash_command_type "$1"; }
-    PROMPT_COMMAND='shellhistory run;'$'\n'"${PROMPT_COMMAND}"
+    PROMPT_COMMAND='_shellhistory_run;'$'\n'"${PROMPT_COMMAND}"
   fi
 }
 
@@ -170,49 +140,20 @@ _shellhistory_run() {
   unset _SHELLHISTORY_START_TIME
 }
 
-_shellhistory_append_to() {
-  case "$1" in
-    file)
-      _SHELLHISTORY_APPEND_TO_DB=0
-      _SHELLHISTORY_APPEND_TO_FILE=1
-    ;;
-    db)
-      _SHELLHISTORY_APPEND_TO_DB=1
-      _SHELLHISTORY_APPEND_TO_FILE=0
-    ;;
-    both)
-      _SHELLHISTORY_APPEND_TO_DB=1
-      _SHELLHISTORY_APPEND_TO_FILE=1
-    ;;
-    *)
-      echo "shellhistory: append-to: choose between 'file', 'db', or 'both'." >&2
-      return 1
-    ;;
-  esac
-}
-
 _shellhistory_usage() {
-  echo "usage: shellhistory <COMMAND> [ARGS]"
+  echo "usage: shellhistory <COMMAND>"
 }
 
 _shellhistory_help() {
   _shellhistory_usage
   echo
   echo "Commands:"
-  # echo "  append-to <file|db|both>    tell where to append last command"
-  # echo "                              (default both)"
   echo "  disable     disable shellhistory"
   echo "  enable      enable shellhistory"
   echo "  help        print this help and exit"
-  echo "  run         try to append last command"
 }
 
 # GLOBAL VARIABLES -------------------------------------------------------------
-
-# SHELLHISTORY_ROOT="${SHELLHISTORY_ROOT:-$HOME/.shell_history}"
-# SHELLHISTORY_DB="${SHELLHISTORY_DB:-$SHELLHISTORY_ROOT/db}"
-SHELLHISTORY_FILE="${SHELLHISTORY_FILE:-$HOME/.shell_history/history}"
-
 # shellcheck disable=SC2119
 _SHELLHISTORY_PARENTS="$(_shellhistory_parents)"
 _SHELLHISTORY_PARENTS_B64="$(echo "${_SHELLHISTORY_PARENTS}" | base64 -w0)"
@@ -226,25 +167,20 @@ _SHELLHISTORY_TYPE=
 _SHELLHISTORY_PREVCMD_NUM=
 _SHELLHISTORY_TRAP_SET=0
 _SHELLHISTORY_ENABLED=0
-_SHELLHISTORY_APPEND_TO_FILE=1
-_SHELLHISTORY_APPEND_TO_DB=1
 
-# export SHELLHISTORY_ROOT
-# export SHELLHISTORY_DB
+SHELLHISTORY_FILE="${SHELLHISTORY_FILE:-$HOME/.shell_history/history}"
+
 export SHELLHISTORY_FILE
 export _SHELLHISTORY_UUID
 
 # MAIN COMMAND -----------------------------------------------------------------
-
 shellhistory() {
   _shellhistory_set_code  # must always be done first
 
   case "$1" in
-    # append-to) _shellhistory_append_to "$2" ;;
     disable) _shellhistory_disable ;;
     enable) _shellhistory_enable ;;
     help) _shellhistory_help ;;
-    run) _shellhistory_run ;;
     *) _shellhistory_usage >&2; exit 1 ;;
   esac
 }

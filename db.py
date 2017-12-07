@@ -1,6 +1,5 @@
 import os
 import shutil
-import uuid
 from base64 import b64decode
 from collections import namedtuple
 from datetime import datetime
@@ -12,7 +11,6 @@ from sqlalchemy.orm import sessionmaker
 
 DB_PATH = os.getenv('SHELLHISTORY_DB', 'shellhistory.db')
 HISTFILE_PATH = os.getenv('SHELLHISTORY_FILE', 'shellhistory')
-UUID = str(uuid.uuid4())
 
 Base = declarative_base()
 engine = create_engine('sqlite:///%s' % DB_PATH)
@@ -136,19 +134,6 @@ def insert(obj_list, session, one_by_one=False):
     return report(0, 0)
 
 
-def backup_file(path):
-    backup_path = '%s.%s.bak' % (path, UUID)
-    shutil.move(path, backup_path)
-    with open(path, 'a'):
-        os.utime(path, None)
-
-
-def backup_history():
-    if not os.path.exists(HISTFILE_PATH):
-        raise ValueError('%s: no such file' % HISTFILE_PATH)
-    backup_file(HISTFILE_PATH)
-
-
 def import_file(path):
     obj_list = parse_file(path)
     session = Session()
@@ -172,5 +157,4 @@ def update():
     except exc.OperationalError:
         create_tables()
         report = import_history()
-    # backup_history()
     return report
