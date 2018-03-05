@@ -64,7 +64,7 @@ _shellhistory_set_pwd() {
 
 _shellhistory_can_append() {
   local last_number
-  [ ! -n "${_SHELLHISTORY_START_TIME}" ] && return 1
+  [ ${_SHELLHISTORY_BEFORE_DONE} -ne 1 ] && return 1
   last_number=$(_shellhistory_last_command_number)
   if [ -n "${_SHELLHISTORY_PREVCMD_NUM}" ]; then
     [ "${last_number}" -eq ${_SHELLHISTORY_PREVCMD_NUM} ] && return 1
@@ -98,46 +98,48 @@ _shellhistory_append_to_file() {
 }
 
 _shellhistory_before() {
+  [ ${_SHELLHISTORY_BEFORE_DONE} -gt 0 ] && return
+
   _shellhistory_set_command
   _shellhistory_set_command_type
   _shellhistory_set_pwd
   _shellhistory_start_timer
+
+  _SHELLHISTORY_AFTER_DONE=0
+  _SHELLHISTORY_BEFORE_DONE=1
 }
 
 _shellhistory_after() {
+  _shellhistory_set_code  # must always be done first
   _shellhistory_stop_timer
+
+  [ ${_SHELLHISTORY_BEFORE_DONE} -eq 2 ] && _SHELLHISTORY_BEFORE_DONE=0
+  [ ${_SHELLHISTORY_AFTER_DONE} -eq 1 ] && return
+
   _shellhistory_append
+
+  _SHELLHISTORY_BEFORE_DONE=0
+  _SHELLHISTORY_AFTER_DONE=1
 }
 
 _shellhistory_enable() {
-  _SHELLHISTORY_ENABLED=1
   # mkdir -p "${SHELLHISTORY_ROOT}" &>/dev/null
   if [ "${ZSH_VERSION}" ]; then
     _shellhistory_command_type() { _shellhistory_zsh_command_type "$1"; }
       # FIXME: don't override possible previous contents of precmd
-    precmd() { _shellhistory_run; }
+    precmd() { _shellhistory_after; }
   elif [ "${BASH_VERSION}" ]; then
     _shellhistory_command_type() { _shellhistory_bash_command_type "$1"; }
-    PROMPT_COMMAND='_shellhistory_run;'$'\n'"${PROMPT_COMMAND}"
+    PROMPT_COMMAND='_shellhistory_after;'$'\n'"${PROMPT_COMMAND}"
   fi
+  _SHELLHISTORY_BEFORE_DONE=2
+  _SHELLHISTORY_AFTER_DONE=1
+  trap '_shellhistory_before' DEBUG
 }
 
 _shellhistory_disable() {
-  if [ ${_SHELLHISTORY_TRAP_SET} -eq 1 ]; then
-    trap - DEBUG
-    _SHELLHISTORY_TRAP_SET=0
-  fi
-  _SHELLHISTORY_ENABLED=0
-}
-
-_shellhistory_run() {
-  if [ ${_SHELLHISTORY_TRAP_SET} -eq 1 ]; then
-    _shellhistory_after
-  elif [ ${_SHELLHISTORY_ENABLED} -eq 1 ]; then
-    _SHELLHISTORY_TRAP_SET=1
-    trap '_shellhistory_before' DEBUG
-  fi
-  unset _SHELLHISTORY_START_TIME
+  _SHELLHISTORY_AFTER_DONE=1
+  trap - DEBUG
 }
 
 _shellhistory_usage() {
@@ -155,18 +157,22 @@ _shellhistory_help() {
 
 # GLOBAL VARIABLES -------------------------------------------------------------
 # shellcheck disable=SC2119
+_SHELLHISTORY_CODE=
+_SHELLHISTORY_COMMAND=
+_SHELLHISTORY_HOSTNAME="$(hostname)"
 _SHELLHISTORY_PARENTS="$(_shellhistory_parents)"
 _SHELLHISTORY_PARENTS_B64="$(echo "${_SHELLHISTORY_PARENTS}" | base64 -w0)"
-_SHELLHISTORY_HOSTNAME="$(hostname)"
-_SHELLHISTORY_UUID="${_SHELLHISTORY_UUID:-$(uuidgen)}"
-_SHELLHISTORY_TTY="$(tty)"
+_SHELLHISTORY_PWD=
+_SHELLHISTORY_PWD_B64=
 _SHELLHISTORY_START_TIME=
 _SHELLHISTORY_STOP_TIME=
+_SHELLHISTORY_TTY="$(tty)"
 _SHELLHISTORY_TYPE=
+_SHELLHISTORY_UUID="${_SHELLHISTORY_UUID:-$(uuidgen)}"
 
+_SHELLHISTORY_AFTER_DONE=
+_SHELLHISTORY_BEFORE_DONE=
 _SHELLHISTORY_PREVCMD_NUM=
-_SHELLHISTORY_TRAP_SET=0
-_SHELLHISTORY_ENABLED=0
 
 SHELLHISTORY_FILE="${SHELLHISTORY_FILE:-$HOME/.shell_history/history}"
 
@@ -175,8 +181,6 @@ export _SHELLHISTORY_UUID
 
 # MAIN COMMAND -----------------------------------------------------------------
 shellhistory() {
-  _shellhistory_set_code  # must always be done first
-
   case "$1" in
     disable) _shellhistory_disable ;;
     enable) _shellhistory_enable ;;
