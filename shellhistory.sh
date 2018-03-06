@@ -22,11 +22,11 @@ _shellhistory_last_command_number() {
 }
 
 _shellhistory_bash_command_type() {
-  type -t $1
+  type -t "$1"
 }
 
 _shellhistory_zsh_command_type() {
-  whence -w $1 | cut -d' ' -f2
+  whence -w "$1" | cut -d' ' -f2
 }
 
 _shellhistory_time_now() {
@@ -64,9 +64,11 @@ _shellhistory_set_pwd() {
 
 _shellhistory_can_append() {
   local last_number
+  # shellcheck disable=SC2086
   [ ${_SHELLHISTORY_BEFORE_DONE} -ne 1 ] && return 1
   last_number=$(_shellhistory_last_command_number)
   if [ -n "${_SHELLHISTORY_PREVCMD_NUM}" ]; then
+    # shellcheck disable=SC2086
     [ "${last_number}" -eq ${_SHELLHISTORY_PREVCMD_NUM} ] && return 1
     _SHELLHISTORY_PREVCMD_NUM=${last_number}
   else
@@ -81,7 +83,7 @@ _shellhistory_append() {
 }
 
 _shellhistory_append_to_file() {
-  printf ":%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s\n" \
+  printf ':%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s\n' \
     "${_SHELLHISTORY_START_TIME}" \
     "${_SHELLHISTORY_STOP_TIME}" \
     "${_SHELLHISTORY_UUID}" \
@@ -98,6 +100,7 @@ _shellhistory_append_to_file() {
 }
 
 _shellhistory_before() {
+  # shellcheck disable=SC2086
   [ ${_SHELLHISTORY_BEFORE_DONE} -gt 0 ] && return
 
   _shellhistory_set_command
@@ -160,8 +163,10 @@ _shellhistory_help() {
 _SHELLHISTORY_CODE=
 _SHELLHISTORY_COMMAND=
 _SHELLHISTORY_HOSTNAME="$(hostname)"
+# shellcheck disable=SC2119
 _SHELLHISTORY_PARENTS="$(_shellhistory_parents)"
 _SHELLHISTORY_PARENTS_B64="$(echo "${_SHELLHISTORY_PARENTS}" | base64 -w0)"
+# shellcheck disable=SC2034
 _SHELLHISTORY_PWD=
 _SHELLHISTORY_PWD_B64=
 _SHELLHISTORY_START_TIME=
