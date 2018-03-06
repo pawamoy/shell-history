@@ -1,0 +1,11 @@
+stages:
+  - lint
+
+shellcheck:
+  image: docker:latest
+  services:
+    - docker:dind
+  stage: lint
+  script:
+    - docker pull koalaman/shellcheck:latest
+    - docker run -v "$PWD:/mnt" koalaman/shellcheck shellhistory.sh
