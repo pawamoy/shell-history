@@ -1,4 +1,6 @@
 # Shell History
+[![pipeline status](https://gitlab.com/Pawamoy/shell-history/badges/master/pipeline.svg)](https://gitlab.com/Pawamoy/shell-history/commits/master)
+
 Inspired by https://github.com/bamos/zsh-history-analysis.
 
 Visualize your usage of Bash/Zsh through a web app
