@@ -120,6 +120,7 @@ _shellhistory_after() {
   [ ${_SHELLHISTORY_AFTER_DONE} -eq 1 ] && return
 
   _shellhistory_append
+  unset _SHELLHISTORY_START_TIME
 
   _SHELLHISTORY_BEFORE_DONE=0
   _SHELLHISTORY_AFTER_DONE=1
