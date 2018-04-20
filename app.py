@@ -8,7 +8,7 @@ import statistics
 from flask import Flask, jsonify, render_template
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
-from sqlalchemy import extract, func, select
+from sqlalchemy import extract, func
 
 import db
 
@@ -176,12 +176,14 @@ def type_view():
 @app.route('/daily_json')
 def daily_json():
     session = db.Session()
-    results = defaultdict(lambda: 0)
+    results = defaultdict(int)
     results.update(session.query(
         func.strftime('%w', db.History.start).label('day'),
         func.count('day')
     ).group_by('day').all())
-    data = [results[str(day)] for day in range(1, 8)]
+    data = [results[str(day)] for day in range(1, 7)]
+    # put sunday at the end
+    data.append(results['0'])
     return jsonify(data)
 
 
@@ -191,13 +193,15 @@ def daily_average_json():
     mintime = session.query(func.min(db.History.start)).first()[0]
     maxtime = session.query(func.max(db.History.start)).first()[0]
     number_of_weeks = (maxtime - mintime).days / 7 + 1
-    results = defaultdict(lambda: 0)
+    results = defaultdict(int)
     results.update(session.query(
         func.strftime('%w', db.History.start).label('day'),
         func.count('day')
     ).group_by('day').all())
     data = [float('%.2f' % (results[str(day)] / number_of_weeks))
-            for day in range(1, 8)]
+            for day in range(1, 7)]
+    # put sunday at the end
+    data.append(float('%.2f' % (results['0'] / number_of_weeks)))
     return jsonify(data)
 
 
