@@ -3,7 +3,7 @@
 _shellhistory_parents() {
   local list pid
   list="$(ps -eo pid,ppid,command | tr -s ' ' | sed 's/^ //g')"
-  pid=${1:-$$}
+  pid=$$
   while [ "${pid}" -ne 0 ]; do
     echo "${list}" | grep "^${pid} " | cut -d' ' -f3-
     pid=$(echo "${list}" | grep "^${pid} " | cut -d' ' -f2)
@@ -57,7 +57,7 @@ _shellhistory_set_code() {
 
 _shellhistory_set_pwd() {
   _SHELLHISTORY_PWD="${PWD}"
-  _SHELLHISTORY_PWD_B64="$(base64 -w0 <<<"${PWD}")"
+  _SHELLHISTORY_PWD_B64="$(base64 -w0 <<<"${_SHELLHISTORY_PWD}")"
 }
 
 _shellhistory_can_append() {
