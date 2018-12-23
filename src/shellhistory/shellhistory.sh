@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 # FUNCTIONS --------------------------------------------------------------------
 # shellcheck disable=SC2120
 _shellhistory_parents() {
@@ -13,7 +11,7 @@ _shellhistory_parents() {
 }
 
 _shellhistory_last_command() {
-  # multiline commands have preprended ';' (starting at line 2)
+  # multi-line commands have prepended ';' (starting at line 2)
   fc -lnr -0 | sed -e '1s/^\t //;2,$s/^/;/'
 }
 
@@ -160,14 +158,11 @@ _shellhistory_help() {
 }
 
 # GLOBAL VARIABLES -------------------------------------------------------------
-# shellcheck disable=SC2119
 _SHELLHISTORY_CODE=
 _SHELLHISTORY_COMMAND=
 _SHELLHISTORY_HOSTNAME="$(hostname)"
-# shellcheck disable=SC2119
 _SHELLHISTORY_PARENTS="$(_shellhistory_parents)"
 _SHELLHISTORY_PARENTS_B64="$(echo "${_SHELLHISTORY_PARENTS}" | base64 -w0)"
-# shellcheck disable=SC2034
 _SHELLHISTORY_PWD=
 _SHELLHISTORY_PWD_B64=
 _SHELLHISTORY_START_TIME=
@@ -180,7 +175,7 @@ _SHELLHISTORY_AFTER_DONE=
 _SHELLHISTORY_BEFORE_DONE=
 _SHELLHISTORY_PREVCMD_NUM=
 
-SHELLHISTORY_FILE="${SHELLHISTORY_FILE:-$HOME/.shell_history/history}"
+SHELLHISTORY_FILE="${SHELLHISTORY_FILE:-$HOME/.shellhistory/history}"
 
 export SHELLHISTORY_FILE
 export _SHELLHISTORY_UUID

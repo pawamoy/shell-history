@@ -1,11 +1,12 @@
 # Shell History
-[![pipeline status](https://gitlab.com/Pawamoy/shell-history/badges/master/pipeline.svg)](https://gitlab.com/Pawamoy/shell-history/commits/master)
+[![pipeline status](https://gitlab.com/pawamoy/shell-history/badges/master/pipeline.svg)](https://gitlab.com/pawamoy/shell-history/commits/master)
 
 Inspired by https://github.com/bamos/zsh-history-analysis.
 
 Visualize your usage of Bash/Zsh through a web app
 thanks to Flask and Highcharts.
 
+- [Requirements](#requirements)
 - [Installation](#installation)
 - [Usage](#usage)
 - [How it looks](#how-it-looks)
@@ -14,47 +15,63 @@ thanks to Flask and Highcharts.
 - [Chart ideas](#chart-ideas)
 - [License](#license)
 
-## Installation
-Clone the repo with `git clone https://github.com/Pawamoy/shell-history`.
+## Requirements
+`shellhistory` requires Python 3.6.
 
-Run `make install` or `./scripts/setup.sh` to install the dependencies in
-the current directory.
-
-`shell-history` needs a lot of info to be able to display various charts.
-The basic shell history is not enough. In order to generate the necessary
-information, you have to source the `shellhistory.sh` script, and activate
-`shell-history`.
-
-So, at shell startup, in `.bashrc` or `.zshrc`, put the following:
+<details>
+<summary>To install Python 3.6, I recommend <a href="https://github.com/pyenv/pyenv"><code>pyenv</code></a>.</summary>
 
 ```bash
-# make sure nothing is prepended to PROMPT_COMMAND or precmd after this line
-. '/path/to/shell-history/shellhistory.sh'
-shellhistory enable
+# install pyenv
+git clone https://github.com/pyenv/pyenv ~/.pyenv
+
+# setup pyenv (you should also put these two lines in .bashrc or similar)
+export PATH="${HOME}/.pyenv/bin:${PATH}"
+eval "$(pyenv init -)"
+
+# install Python 3.6
+pyenv install 3.6.7
+
+# make it available globally
+pyenv global system 3.6.7
+```
+</details>
+
+## Installation
+With `pip`:
+```bash
+python3.6 -m pip install shellhistory
+```
+
+With [`pipx`](https://github.com/cs01/pipx):
+```bash
+# install pipx with the recommended method
+curl https://raw.githubusercontent.com/cs01/pipx/master/get-pipx.py | python3
+
+pipx install --python python3.6 shellhistory
+```
+
+## Setup
+`shellhistory` needs a lot of info to be able to display various charts.
+The basic shell history is not enough. In order to generate the necessary
+information, you have to enable the shell extension.
+
+At shell startup, in `.bashrc` or `.zshrc`, put the following:
+
+```bash
+if command -v shellhistory-location &>/dev/null; then
+    . $(shellhistory-location)
+    shellhistory enable
+fi
 ```
 
 ... and now use your shell normally!
 
-If you want to stop `shell-history`, simply run `shellhistory disable`.
+If you want to stop `shellhistory`, simply run `shellhistory disable`.
 
 ## Usage
-Launch the web app with `make run` or `./scripts/run.sh`.
+Launch the web app with `shellhistory-web`.
 Now go to http://127.0.0.1:5000/ and enjoy!
-
-For more convenience, you can put a script in your PATH, for example in
-`/usr/bin/`, with the following contents:
-
-```bash
-#!/usr/bin/env bash
-
-SHELLHISTORY_DIR=/path/to/shell-history  # update this line
-export SHELLHISTORY_VENV=${SHELLHISTORY_DIR}/venv
-export SHELLHISTORY_FILE=~/.shell_history/history
-export SHELLHISTORY_DB=~/.shell_history/db
-
-cd ${SHELLHISTORY_DIR} || exit 1
-./scripts/run.sh
-```
 
 You will need Internet connection since assets are not bundled.
 
@@ -96,7 +113,7 @@ thanks to a trap on the DEBUG signal. From Bash manual about `trap`:
 
 The last command is obtained with the command `fc`. It will feel like your
 history configuration is mimic'd by the extended history. If the commands
-beginning with a space are ignored, `shell-history` will notice it and will not
+beginning with a space are ignored, `shellhistory` will notice it and will not
 append these commands. Same for ignored duplicates. If you enter an empty line,
 or hit Control-C before enter, nothing will be appended either. The trick behind
 this is to check the command number in the current history (see `shellhistory.sh`
@@ -125,7 +142,7 @@ Example (multiline command):
 ```
 
 ## Chart ideas
-You can post your ideas in this issue: https://github.com/Pawamoy/shell-history/issues/9.
+You can post your ideas in this issue: https://github.com/pawamoy/shell-history/issues/9.
 
 ## License
 Software licensed under the

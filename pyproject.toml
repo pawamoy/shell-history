@@ -1,0 +1,41 @@
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+
+[tool.poetry]
+name = "shellhistory"
+version = "0.2.0"
+description = " Visualize your shell usage with Highcharts!"
+license = "ISC"
+authors = ["Timothée Mazzucotelli <pawamoy@pm.me>"]
+readme = 'README.md'
+repository = "https://github.com/pawamoy/shell-history"
+homepage = "https://github.com/pawamoy/shell-history"
+keywords = ['shell', 'bash', 'zsh', 'history', 'analysis', 'visualization']
+packages = [ { include = "shellhistory", from = "src" } ]
+include = [
+    "README.md",
+    "pyproject.toml"
+]
+
+[tool.poetry.dependencies]
+python = "~3.6"
+flask = "^1.0"
+Flask-Admin = "^1.5"
+sqlalchemy = "^1.2"
+tqdm = "^4.28"
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+pytest-cov = "*"
+pytest-sugar = "*"
+ipython = "^7.2"
+
+[tool.poetry.scripts]
+shellhistory-cli = 'shellhistory.cli:main'
+shellhistory-location = 'shellhistory.cli:location'
+shellhistory-web = 'shellhistory.cli:web'
+
+[tool.black]
+line-length = 120
+
