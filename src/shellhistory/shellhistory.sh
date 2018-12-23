@@ -186,6 +186,6 @@ shellhistory() {
     disable) _shellhistory_disable ;;
     enable) _shellhistory_enable ;;
     help) _shellhistory_help ;;
-    *) _shellhistory_usage >&2; exit 1 ;;
+    *) _shellhistory_usage >&2; return 1 ;;
   esac
 }
