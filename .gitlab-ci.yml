@@ -8,4 +8,4 @@ shellcheck:
   stage: lint
   script:
     - docker pull koalaman/shellcheck:latest
-    - docker run -v "$PWD:/mnt" koalaman/shellcheck shellhistory.sh
+    - docker run -v "$PWD:/mnt" koalaman/shellcheck src/shellhistory/shellhistory.sh
