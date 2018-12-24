@@ -200,10 +200,7 @@ def import_file(path):
             session.rollback()
             reports.append(insert(obj_list, session, one_by_one=True))
 
-    final_report = InsertionReport(
-        sum([r.inserted for r in reports]),
-        sum([r.duplicates for r in reports])
-    )
+    final_report = InsertionReport(sum([r.inserted for r in reports]), sum([r.duplicates for r in reports]))
 
     return final_report
 

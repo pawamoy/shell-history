@@ -2,13 +2,14 @@
 
 import time
 from collections import Counter, defaultdict
-from datetime import datetime
+from datetime import datetime, time as dt_time
 import statistics
 
 from flask import Flask, jsonify, render_template
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
-from sqlalchemy import extract, func
+from sqlalchemy import extract, func, desc
+from sqlalchemy.sql import func as sqlfunc
 
 from . import db
 
@@ -91,7 +92,7 @@ def update_call():
     except Exception as e:
         data["class"] = "danger"
         data["message"] = "%s\n%s: %s" % (
-            "Failed to import current history. " "The following exception occurred:",
+            "Failed to import current history. The following exception occurred:",
             type(e),
             e,
         )
@@ -99,7 +100,7 @@ def update_call():
         if report.inserted:
             data["class"] = "success"
             data["message"] = (
-                "Database successfully updated (%s new items), " "refresh the page to see the change." % report.inserted
+                "Database successfully updated (%s new items), refresh the page to see the change." % report.inserted
             )
             if report.duplicates:
                 data["class"] = "info"
@@ -113,6 +114,11 @@ def update_call():
 
 
 # Simple views rendering templates --------------------------------------------
+@app.route("/codes")
+def codes_view():
+    return render_template("codes.html")
+
+
 @app.route("/daily")
 def daily_view():
     return render_template("daily.html")
@@ -121,6 +127,11 @@ def daily_view():
 @app.route("/daily_average")
 def daily_average_view():
     return render_template("daily_average.html")
+
+
+@app.route("/duration")
+def duration_view():
+    return render_template("duration.html")
 
 
 @app.route("/hourly")
@@ -158,6 +169,11 @@ def monthly_average_view():
     return render_template("monthly_average.html")
 
 
+@app.route("/over_time")
+def over_time_view():
+    return render_template("over_time.html")
+
+
 @app.route("/top_commands_full")
 def top_commands_full_view():
     return render_template("top_commands_full.html")
@@ -178,7 +194,21 @@ def type_view():
     return render_template("type.html")
 
 
+@app.route("/yearly")
+def yearly_view():
+    return render_template("yearly.html")
+
+
 # Routes to return JSON contents ----------------------------------------------
+@app.route("/codes_json")
+def codes_json():
+    session = db.Session()
+    results = session.query(db.History.code, func.count(db.History.code)).group_by(db.History.code).all()
+    # total = sum(r[1] for r in results)
+    data = [{"name": r[0], "y": r[1]} for r in sorted(results, key=lambda x: x[1], reverse=True)]
+    return jsonify(data)
+
+
 @app.route("/daily_json")
 def daily_json():
     session = db.Session()
@@ -205,6 +235,22 @@ def daily_average_json():
     data = [float("%.2f" % (results[str(day)] / number_of_weeks)) for day in range(1, 7)]
     # put sunday at the end
     data.append(float("%.2f" % (results["0"] / number_of_weeks)))
+    return jsonify(data)
+
+
+@app.route("/duration_json")
+def duration_json():
+    session = db.Session()
+    results = session.query(db.History.duration).all()
+
+    flat_values = [r[0].seconds + round(r[0].microseconds / 1000) for r in results]
+    counter = Counter(flat_values)
+
+    data = {
+        "average": float("%.2f" % statistics.mean(flat_values)),
+        "median": statistics.median(flat_values),
+        "series": [counter[duration] for duration in range(1, max(counter.keys()) + 1)],
+    }
     return jsonify(data)
 
 
@@ -327,17 +373,50 @@ def monthly_average_json():
     return jsonify(data)
 
 
+@app.route("/over_time_json")
+def over_time_json():
+    session = db.Session()
+    results = session.query(db.History.start).order_by(db.History.start).all()
+
+    def datetime_to_milliseconds(dt):
+        return int(datetime(dt.year, dt.month, dt.day).timestamp() * 1000)
+
+    counter = Counter([datetime_to_milliseconds(r[0]) for r in results])
+    data = [(k, v) for k, v in counter.items()]
+    return jsonify(data)
+
+
 @app.route("/top_commands_full_json")
 def top_commands_full_json():
     session = db.Session()
-    data = None
+    results = (
+        session.query(db.History.cmd, func.count(db.History.cmd).label("count"))
+        .group_by(db.History.cmd)
+        .order_by(desc("count"))
+        .limit(20)
+        .all()
+    )
+    data = {"categories": [r[0] for r in results], "series": [r[1] for r in results]}
     return jsonify(data)
 
 
 @app.route("/top_commands_json")
 def top_commands_json():
     session = db.Session()
-    data = None
+    # Tried to do this with SQL only. Failed. POSITION is not a function.
+    # results = (
+    #     session.query(
+    #         sqlfunc.substr(db.History.cmd, 1, sqlfunc.position(" ", db.History.cmd)),
+    #         func.count(db.History.cmd).label("count"),
+    #     )
+    #     .group_by(db.History.cmd)
+    #     .order_by(desc("count"))
+    #     .limit(20)
+    #     .all()
+    # )
+    results = session.query(db.History.cmd).all()
+    counter = Counter([r[0].split(" ")[0] for r in results]).most_common(20)
+    data = {"categories": [c[0] for c in counter], "series": [c[1] for c in counter]}
     return jsonify(data)
 
 
@@ -363,3 +442,17 @@ def wordcloud_json():
     results = session.query(db.History.cmd).order_by(func.random()).limit(100)
     text = " ".join(r[0] for r in results.all())
     return jsonify(text)
+
+
+@app.route("/yearly_json")
+def yearly_json():
+    session = db.Session()
+    minyear = session.query(extract("year", func.min(db.History.start))).first()[0]
+    maxyear = session.query(extract("year", func.max(db.History.start))).first()[0]
+    results = defaultdict(lambda: 0)
+    results.update(
+        session.query(extract("year", db.History.start).label("year"), func.count("year")).group_by("year").all()
+    )
+    data = [(year, results[year]) for year in range(minyear, maxyear + 1)]
+    return jsonify(data)
+

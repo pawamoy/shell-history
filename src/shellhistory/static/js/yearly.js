@@ -1,22 +1,22 @@
 $(document).ready(function () {
 
-  $.getJSON('/top_commands_full_json', function (data) {
+  $.getJSON('/yearly_json', function (data) {
 
     Highcharts.chart('container', {
       chart: {
-        type: 'bar'
+        type: 'column'
       },
       title: {
-        text: 'Top commands (full lines)'
+        text: 'Yearly Commands'
       },
       xAxis: {
-        categories: data.categories,
-        min: 0,
         title: {
-          text: 'Commands'
-        }
+          text: 'Year'
+        },
+        crosshair: true
       },
       yAxis: {
+        min: 0,
         title: {
           text: 'Number of commands'
         }
@@ -32,8 +32,9 @@ $(document).ready(function () {
         }
       },
       series: [{
-        name: 'Number',
-        data: data.series
+        name: 'Number of commands',
+        data: data
+
       }]
     });
 

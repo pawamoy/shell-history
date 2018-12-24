@@ -54,4 +54,5 @@ def location():
 
 def web():
     from .app import app
+
     app.run()
