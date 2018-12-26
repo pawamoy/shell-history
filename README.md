@@ -1,25 +1,42 @@
 # Shell History
 [![pipeline status](https://gitlab.com/pawamoy/shell-history/badges/master/pipeline.svg)](https://gitlab.com/pawamoy/shell-history/commits/master)
 
-Inspired by https://github.com/bamos/zsh-history-analysis.
+Inspired by [bamos/zsh-history-analysis](https://github.com/bamos/zsh-history-analysis).
 
 Visualize your usage of Bash/Zsh through a web app
-thanks to Flask and Highcharts.
+thanks to [Flask](http://flask.pocoo.org/) and [Highcharts](https://www.highcharts.com/)!
+
+<table>
+  <tr align="center">
+    <td>Duration<img alt="duration chart" src="pictures/duration.png" /></td>
+    <td>Length<img alt="length chart" src="pictures/length.png" /></td>
+    <td>Type<img alt="type chart" src="pictures/type.png" /></td>
+  </tr>
+  <tr align="center">
+    <td>Exit code<img alt="exit code chart" src="pictures/exit_code.png" /></td>
+    <td>Hourly<img alt="hourly chart" src="pictures/avg_hourly.png" /></td>
+    <td>Daily<img alt="daily chart" src="pictures/avg_daily.png" /></td>
+  </tr>
+  <tr align="center">
+    <td>Over time<img alt="over time chart" src="pictures/over_time.png" /></td>
+    <td>Markov chain<img alt="markov chart" src="pictures/markov.png" /></td>
+    <td>Top commands<img alt="top chart" src="pictures/top.png" /></td>
+  </tr>
+</table>
 
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Usage](#usage)
-- [How it looks](#how-it-looks)
 - [How it works](#how-it-works)
 - [History file format](#history-file-format)
 - [Chart ideas](#chart-ideas)
 - [License](#license)
 
 ## Requirements
-`shellhistory` requires Python 3.6.
+`shellhistory` requires Python 3.6 or above.
 
 <details>
-<summary>To install Python 3.6, I recommend <a href="https://github.com/pyenv/pyenv"><code>pyenv</code></a>.</summary>
+<summary>To install Python 3.6, I recommend using <a href="https://github.com/pyenv/pyenv"><code>pyenv</code></a>.</summary>
 
 ```bash
 # install pyenv
@@ -71,15 +88,9 @@ If you want to stop `shellhistory`, simply run `shellhistory disable`.
 
 ## Usage
 Launch the web app with `shellhistory-web`.
-Now go to http://127.0.0.1:5000/ and enjoy!
+Now go to [http://localhost:5000/](http://localhost:5000/) and enjoy!
 
 You will need Internet connection since assets are not bundled.
-
-## How it looks
-![length chart](pictures/length.png)
-![markov chart](pictures/markov.png)
-![daily chart](pictures/daily.png)
-![type chart](pictures/type.png)
 
 ## How it works
 In order to append a line each time a command is entered, the `PROMPT_COMMAND`
@@ -127,13 +138,13 @@ uuid (generated), tty, process' parents, shell, shell level, command type,
 return code, and working directory (path), in the following format:
 `:start:stop:uuid:parents:host:user:tty:path:shell:level:type:code:command`.
 
-- multiline commands are prepended with a semi-colon `;` instead of a colon `:`,
+- multi-line commands are prepended with a semi-colon `;` instead of a colon `:`,
   starting at second line
 - start and stop timestamps are in microseconds since epoch
 - process' parents and working directory are encoded in base64 to avoid
   delimiter corruption
 
-Example (multiline command):
+Example (multi-line command):
 
 ```
 :1510588139930150:1510588139936608:40701d9b-1807-4a3e-994b-dde68692aa14:L2Jpbi9iYXNoCi91c3IvYmluL3B5dGhvbiAvdXNyL2Jpbi94LXRlcm1pbmFsLWVtdWxhdG9yCi91c3IvYmluL29wZW5ib3ggLS1zdGFydHVwIC91c3IvbGliL3g4Nl82NC1saW51eC1nbnUvb3BlbmJveC1hdXRvc3RhcnQgT1BFTkJPWApsaWdodGRtIC0tc2Vzc2lvbi1jaGlsZCAxMiAyMQovdXNyL3NiaW4vbGlnaHRkbQovc2Jpbi9pbml0Cg==:myhost:pawamoy:/dev/pts/1:L21lZGlhL3Bhd2Ftb3kvRGF0YS9naXQvc2hlbGxoaXN0Cg==:/bin/bash:1:builtin:0:echo 'a
@@ -147,4 +158,4 @@ You can post your ideas in this issue: https://github.com/pawamoy/shell-history/
 ## License
 Software licensed under the
 [ISC](https://www.isc.org/downloads/software-support-policy/isc-license/)
-license.
+license. See the [LICENSE](/LICENSE) file.
