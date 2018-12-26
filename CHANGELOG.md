@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [v0.2.1](https://gitlab.com/pawamoy/shell-history/tags/v0.3.0) ([compare](https://gitlab.com/pawamoy/shell-history/compare/v0.2.0...v0.2.1)) - 2018-12-26
+
+- Implement new charts ([4434afd](https://gitlab.com/pawamoy/shell-history/commit/4434afdce557f861f0b6b32b5ecd8c0474b59029)).
+- Fix shellhistory command (return, don't exit) ([a27fb53](https://gitlab.com/pawamoy/shell-history/commit/a27fb53e097f22acc7cf789fb69f244208115c3f)).
+
 ## [v0.2.0](https://gitlab.com/pawamoy/shell-history/tags/v0.2.0) ([compare](https://gitlab.com/pawamoy/shell-history/compare/v0.1.0...v0.2.0)) - 2018-12-23
 
 - Package the application ([edaf15b](https://gitlab.com/pawamoy/shell-history/commit/edaf15b7424d40ef13442be03ae04828eb80571d)).
@@ -26,6 +31,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
     
   Please remember this application is alpha software, and is subject to change without guarantee of backward compatibility.
    
-## [v0.1.0](https://gitlab.com/pawamoy/shell-history/tags/v0.1.0) ([compare](https://gitlab.com/pawamoy/shell-history/compare/4a9781fb20047c4c5f9d7bd04f60db5e35295070...v0.1.0)) - 2018-12-23
+## [v0.1.0](https://gitlab.com/pawamoy/shell-history/tags/v0.1.0) ([compare](https://gitlab.com/pawamoy/shell-history/compare/4a9781fb20047c4c5f9d7bd04f60db5e35295070...v0.1.0)) - 2018-04-23
 
 - Initial version without packaging.
