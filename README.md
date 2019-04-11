@@ -60,10 +60,9 @@ With `pip`:
 python3.6 -m pip install shellhistory
 ```
 
-With [`pipx`](https://github.com/cs01/pipx):
+With [`pipx`](https://github.com/pipxproject/pipx):
 ```bash
-# install pipx with the recommended method
-curl https://raw.githubusercontent.com/cs01/pipx/master/get-pipx.py | python3
+python3 -m pip install --user pipx
 
 pipx install --python python3.6 shellhistory
 ```
