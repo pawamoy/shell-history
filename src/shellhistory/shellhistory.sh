@@ -12,11 +12,11 @@ _shellhistory_parents() {
 
 _shellhistory_last_command() {
   # multi-line commands have prepended ';' (starting at line 2)
-  fc -lnr -0 | sed -e '1s/^\t //;2,$s/^/;/'
+  fc -lnr -1 | sed -e '1s/^\t //;2,$s/^/;/'
 }
 
 _shellhistory_last_command_number() {
-  fc -lr -0 | head -n1 | cut -f1
+  fc -lr -1 | head -n1 | cut -f1
 }
 
 _shellhistory_bash_command_type() {
