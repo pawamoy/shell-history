@@ -55,6 +55,10 @@ if not DB_PATH.exists():
 
 Session = sessionmaker(bind=engine)
 
+def get_session():
+    _engine = create_engine("sqlite:///%s" % DB_PATH)
+    session = sessionmaker(bind=_engine)
+    return session()
 
 class History(Base):
     __tablename__ = "history"

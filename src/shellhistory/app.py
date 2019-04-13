@@ -61,7 +61,7 @@ class HistoryModelView(ModelView):
 
 
 admin = Admin(app, name="Shell History", template_mode="bootstrap3")
-admin.add_view(HistoryModelView(db.History, db.Session()))
+admin.add_view(HistoryModelView(db.History, db.get_session()))
 
 
 # Utils -----------------------------------------------------------------------
@@ -182,11 +182,6 @@ def top_commands_full_view():
 @app.route("/top_commands")
 def top_commands_view():
     return render_template("top_commands.html")
-
-
-@app.route("/trending")
-def trending_view():
-    return render_template("trending.html")
 
 
 @app.route("/type")
