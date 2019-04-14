@@ -1,4 +1,35 @@
 # FUNCTIONS --------------------------------------------------------------------
+
+
+if [ -n "${ZSH_VERSION}" ]; then
+  _shellhistory_command_type() {
+    whence -w "$1" | cut -d' ' -f2
+  }
+
+  _shellhistory_last_command() {
+    # multi-line commands have prepended ';' (starting at line 2)
+    echo "$history[$HISTCMD]" | sed -e '2,$s/^/;/'
+  }
+
+  _shellhistory_last_command_number() {
+    echo $HISTCMD
+  }
+elif [ -n "${BASH_VERSION}" ]; then
+  _shellhistory_command_type() {
+    type -t "$1"
+  }
+
+  _shellhistory_last_command() {
+    # multi-line commands have prepended ';' (starting at line 2)
+    fc -lnr -0 | sed -e '1s/^\t //;2,$s/^/;/'
+  }
+
+  _shellhistory_last_command_number() {
+    fc -lr -0 | head -n1 | cut -f1
+  }
+fi
+
+
 # shellcheck disable=SC2120
 _shellhistory_parents() {
   local list pid
@@ -8,23 +39,6 @@ _shellhistory_parents() {
     echo "${list}" | grep "^${pid} " | cut -d' ' -f3-
     pid=$(echo "${list}" | grep "^${pid} " | cut -d' ' -f2)
   done
-}
-
-_shellhistory_last_command() {
-  # multi-line commands have prepended ';' (starting at line 2)
-  fc -lnr -0 | sed -e '1s/^\t //;2,$s/^/;/'
-}
-
-_shellhistory_last_command_number() {
-  fc -lr -0 | head -n1 | cut -f1
-}
-
-_shellhistory_bash_command_type() {
-  type -t "$1"
-}
-
-_shellhistory_zsh_command_type() {
-  whence -w "$1" | cut -d' ' -f2
 }
 
 _shellhistory_time_now() {
@@ -125,23 +139,27 @@ _shellhistory_after() {
 }
 
 _shellhistory_enable() {
-  # mkdir -p "${SHELLHISTORY_ROOT}" &>/dev/null
-  if [ "${ZSH_VERSION}" ]; then
-    _shellhistory_command_type() { _shellhistory_zsh_command_type "$1"; }
-      # FIXME: don't override possible previous contents of precmd
-    precmd() { _shellhistory_after; }
-  elif [ "${BASH_VERSION}" ]; then
-    _shellhistory_command_type() { _shellhistory_bash_command_type "$1"; }
-    PROMPT_COMMAND='_shellhistory_after;'$'\n'"${PROMPT_COMMAND}"
-  fi
   _SHELLHISTORY_BEFORE_DONE=2
   _SHELLHISTORY_AFTER_DONE=1
-  trap '_shellhistory_before' DEBUG
+  if [ "${ZSH_VERSION}" ]; then
+      # FIXME: don't override possible previous contents of precmd
+    preexec() { _shellhistory_before; }
+    precmd() { _shellhistory_after; }
+  elif [ "${BASH_VERSION}" ]; then
+    PROMPT_COMMAND="_shellhistory_after; ${PROMPT_COMMAND}"
+    trap '_shellhistory_before' DEBUG
+  fi
 }
 
 _shellhistory_disable() {
   _SHELLHISTORY_AFTER_DONE=1
-  trap - DEBUG
+  if [ "${ZSH_VERSION}" ]; then
+    preexec() { :; }
+    precmd() { :; }
+  elif [ "${BASH_VERSION}" ]; then
+    trap - DEBUG
+    PROMPT_COMMAND="${PROMPT_COMMAND#_shellhistory_after; }"
+  fi
 }
 
 _shellhistory_usage() {
