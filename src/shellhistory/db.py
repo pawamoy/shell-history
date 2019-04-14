@@ -125,10 +125,10 @@ def delete_table(table=History):
 def yield_db_object_blocks(path, size=512):
     block = []
 
-    with open(path) as stream:
+    with codecs.open(path, encoding="utf-8", errors="ignore") as stream:
         num_lines = sum(1 for _ in stream)
 
-    with open(path) as stream:
+    with codecs.open(path, encoding="utf-8", errors="ignore") as stream:
         current_obj = None
 
         for i, line in enumerate(tqdm(stream, total=num_lines, unit="lines"), 1):
