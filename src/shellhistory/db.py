@@ -42,7 +42,7 @@ else:
     HISTFILE_PATH = Path(HISTFILE_PATH)
 
 Base = declarative_base()
-engine = create_engine("sqlite:///%s" % DB_PATH)
+engine = create_engine("sqlite:///%s?check_same_thread=False" % DB_PATH)
 
 
 def create_tables():
@@ -54,6 +54,12 @@ if not DB_PATH.exists():
 
 
 Session = sessionmaker(bind=engine)
+
+
+def get_session():
+    _engine = create_engine("sqlite:///%s" % DB_PATH)
+    session = sessionmaker(bind=_engine)
+    return session()
 
 
 class History(Base):

@@ -61,7 +61,7 @@ class HistoryModelView(ModelView):
 
 
 admin = Admin(app, name="Shell History", template_mode="bootstrap3")
-admin.add_view(HistoryModelView(db.History, db.Session()))
+admin.add_view(HistoryModelView(db.History, db.get_session()))
 
 
 # Utils -----------------------------------------------------------------------
@@ -455,4 +455,3 @@ def yearly_json():
     )
     data = [(year, results[year]) for year in range(minyear, maxyear + 1)]
     return jsonify(data)
-
