@@ -7,10 +7,12 @@ if [ -n "${ZSH_VERSION}" ]; then
 
   _shellhistory_last_command() {
     # multi-line commands have prepended ';' (starting at line 2)
-    echo "$history[$HISTCMD]" | sed -e '2,$s/^/;/'
+    # shellcheck disable=SC2154
+    echo "${history[$HISTCMD]}" | sed -e '2,$s/^/;/'
   }
 
   _shellhistory_last_command_number() {
+    # shellcheck disable=SC2086
     echo $HISTCMD
   }
 elif [ -n "${BASH_VERSION}" ]; then
@@ -140,11 +142,11 @@ _shellhistory_after() {
 
 _shellhistory_get_debug_trap() {
   local trap
-  trap="$(trap -p | grep ' DEBUG$')" || return
+  trap="$(trap -p | grep ' DEBUG$')" || return 0
   trap=${trap:9}
   trap=${trap:0:-7}
   case ${trap} in
-    *;) ;;
+    *';') ;;
     *) trap+=";" ;;
   esac
   echo "${trap}"
@@ -154,10 +156,11 @@ _shellhistory_enable() {
   _SHELLHISTORY_BEFORE_DONE=2
   _SHELLHISTORY_AFTER_DONE=1
   if [ "${ZSH_VERSION}" ]; then
-    preexec_functions=($preexec_functions _shellhistory_before)
-    precmd_functions=(_shellhistory_after $precmd_functions)
+    preexec_functions+=(_shellhistory_before)
+    precmd_functions=(_shellhistory_after "${precmd_functions[@]}")
   elif [ "${BASH_VERSION}" ]; then
     PROMPT_COMMAND="_shellhistory_after;${PROMPT_COMMAND}"
+    # shellcheck disable=SC2064
     trap "$(_shellhistory_get_debug_trap)_shellhistory_before;" DEBUG
   fi
 }
@@ -166,12 +169,15 @@ _shellhistory_disable() {
   local trap
   _SHELLHISTORY_AFTER_DONE=1
   if [ "${ZSH_VERSION}" ]; then
+    # shellcheck disable=SC2206
     preexec_functions=(${preexec_functions:#_shellhistory_before})
+    # shellcheck disable=SC2206
     precmd_functions=(${precmd_functions:#_shellhistory_after})
   elif [ "${BASH_VERSION}" ]; then
     trap="$(_shellhistory_get_debug_trap)"
     trap=${trap//_shellhistory_before;}
     if [ -n "${trap}" ]; then
+      # shellcheck disable=SC2064
       trap "${trap}" DEBUG
     else
       trap - DEBUG
