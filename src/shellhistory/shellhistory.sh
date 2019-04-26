@@ -1,6 +1,5 @@
 # FUNCTIONS --------------------------------------------------------------------
 
-
 if [ -n "${ZSH_VERSION}" ]; then
   _shellhistory_command_type() {
     whence -w "$1" | cut -d' ' -f2
@@ -28,7 +27,6 @@ elif [ -n "${BASH_VERSION}" ]; then
     fc -lr -0 | head -n1 | cut -f1
   }
 fi
-
 
 # shellcheck disable=SC2120
 _shellhistory_parents() {
@@ -136,29 +134,49 @@ _shellhistory_after() {
 
   _SHELLHISTORY_BEFORE_DONE=0
   _SHELLHISTORY_AFTER_DONE=1
+
+  return ${_SHELLHISTORY_CODE}
+}
+
+_shellhistory_get_debug_trap() {
+  local trap
+  trap="$(trap -p | grep ' DEBUG$')" || return
+  trap=${trap:9}
+  trap=${trap:0:-7}
+  case ${trap} in
+    *;) ;;
+    *) trap+=";" ;;
+  esac
+  echo "${trap}"
 }
 
 _shellhistory_enable() {
   _SHELLHISTORY_BEFORE_DONE=2
   _SHELLHISTORY_AFTER_DONE=1
   if [ "${ZSH_VERSION}" ]; then
-      # FIXME: don't override possible previous contents of precmd
-    preexec() { _shellhistory_before; }
-    precmd() { _shellhistory_after; }
+    preexec_functions=($preexec_functions _shellhistory_before)
+    precmd_functions=(_shellhistory_after $precmd_functions)
   elif [ "${BASH_VERSION}" ]; then
-    PROMPT_COMMAND="_shellhistory_after; ${PROMPT_COMMAND}"
-    trap '_shellhistory_before' DEBUG
+    PROMPT_COMMAND="_shellhistory_after;${PROMPT_COMMAND}"
+    trap "$(_shellhistory_get_debug_trap)_shellhistory_before;" DEBUG
   fi
 }
 
 _shellhistory_disable() {
+  local trap
   _SHELLHISTORY_AFTER_DONE=1
   if [ "${ZSH_VERSION}" ]; then
-    preexec() { :; }
-    precmd() { :; }
+    preexec_functions=(${preexec_functions:#_shellhistory_before})
+    precmd_functions=(${precmd_functions:#_shellhistory_after})
   elif [ "${BASH_VERSION}" ]; then
-    trap - DEBUG
-    PROMPT_COMMAND="${PROMPT_COMMAND#_shellhistory_after; }"
+    trap="$(_shellhistory_get_debug_trap)"
+    trap=${trap//_shellhistory_before;}
+    if [ -n "${trap}" ]; then
+      trap "${trap}" DEBUG
+    else
+      trap - DEBUG
+    fi
+    PROMPT_COMMAND="${PROMPT_COMMAND//_shellhistory_after;}"
   fi
 }
 
