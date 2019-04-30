@@ -22,7 +22,7 @@ include = [
 python = "~3.6"
 flask = "^1.0"
 Flask-Admin = "^1.5"
-sqlalchemy = "^1.2"
+sqlalchemy = "^1.3"
 tqdm = "^4.28"
 
 [tool.poetry.dev-dependencies]
@@ -38,4 +38,3 @@ shellhistory-web = 'shellhistory.cli:web'
 
 [tool.black]
 line-length = 120
-
