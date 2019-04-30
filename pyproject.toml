@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "shellhistory"
-version = "0.2.1"
+version = "0.2.2"
 description = " Visualize your shell usage with Highcharts!"
 license = "ISC"
 authors = ["Timothée Mazzucotelli <pawamoy@pm.me>"]
