@@ -75,7 +75,8 @@ information, you have to enable the shell extension.
 At shell startup, in `.bashrc` or `.zshrc`, put the following:
 
 ```bash
-if command -v shellhistory-location &>/dev/null; then
+# only load it for interactive shells
+if [[ $- == *i* ]] && command -v shellhistory-location &>/dev/null; then
     . $(shellhistory-location)
     shellhistory enable
 fi
@@ -84,6 +85,8 @@ fi
 ... and now use your shell normally!
 
 If you want to stop `shellhistory`, simply run `shellhistory disable`.
+
+*Note: for performance reasons, you can also use the static, absolute path to the source file. Indeed, calling `shellhistory-location` spawns a Python process which can slow down your shell startup. Get the path once with `shellhistory-location`, and use `. <ABS_PATH>`. In my case it's `. ~/.local/pipx/venvs/shellhistory/lib/python3.6/site-packages/shellhistory/shellhistory.sh`.*
 
 ## Usage
 Launch the web app with `shellhistory-web`.
