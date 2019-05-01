@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [v0.2.2](https://github.com/pawamoy/shell-history/releases/tag/v0.2.2) ([compare](https://github.com/pawamoy/shell-history/compare/v0.2.1...v0.2.2))
+## [v0.2.2](https://github.com/pawamoy/shell-history/releases/tag/v0.2.2) ([compare](https://github.com/pawamoy/shell-history/compare/v0.2.1...v0.2.2)) - 2019-04-30
 
 ### Docs
 - Add note about performance for shell startup ([42ed881](https://github.com/pawamoy/shell-history/commit/42ed88184b03fe977e596b3f86075e7c428703c8)).
