@@ -167,6 +167,7 @@ _shellhistory_enable() {
 
 _shellhistory_disable() {
   local trap
+  local new_prompt
   _SHELLHISTORY_AFTER_DONE=1
   if [ "${ZSH_VERSION}" ]; then
     # shellcheck disable=SC2206
@@ -176,13 +177,8 @@ _shellhistory_disable() {
   elif [ "${BASH_VERSION}" ]; then
     trap="$(_shellhistory_get_debug_trap)"
     trap=${trap//_shellhistory_before;}
-    if [ -n "${trap}" ]; then
-      # shellcheck disable=SC2064
-      trap "${trap}" DEBUG
-    else
-      trap - DEBUG
-    fi
-    PROMPT_COMMAND="${PROMPT_COMMAND//_shellhistory_after;}"
+    new_prompt="${PROMPT_COMMAND//_shellhistory_after;}"
+    PROMPT_COMMAND="trap '${trap:--}' DEBUG; PROMPT_COMMAND='${new_prompt}'"
   fi
 }
 
