@@ -4,10 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [v0.2.4](https://github.com/pawamoy/shell-history/releases/tag/v0.2.4) ([compare](https://github.com/pawamoy/shell-history/compare/v0.2.3...v0.2.4)) - 2019-05-17
+
+### Fixed
+- Fix stupid mistake (not importing codecs module).
+- Fix trap on DEBUG not being removed when calling `shellhistory disable` ([a4f9d2e](https://github.com/pawamoy/shell-history/commit/a4f9d2ed6094a54ba856a6693e53d93dea09f39f)).
+- Ignore exceptions when reading history file (log on stderr) ([45e3d16](https://github.com/pawamoy/shell-history/commit/45e3d16695a8c941360604c8ae5d7d9d7fe3ba7e)).
+
+
 ## [v0.2.3](https://github.com/pawamoy/shell-history/releases/tag/v0.2.3) ([compare](https://github.com/pawamoy/shell-history/compare/v0.2.2...v0.2.3)) - 2019-05-04
 
 ### Fixed
-- fix: Fix python version specifier in pyproject ([07f305d](https://github.com/pawamoy/shell-history/commit/07f305d5b4ad4adfed154febd0cbfa557bc8fca4)).
+- Fix python version specifier in pyproject ([07f305d](https://github.com/pawamoy/shell-history/commit/07f305d5b4ad4adfed154febd0cbfa557bc8fca4)).
 
 
 ## [v0.2.2](https://github.com/pawamoy/shell-history/releases/tag/v0.2.2) ([compare](https://github.com/pawamoy/shell-history/compare/v0.2.1...v0.2.2)) - 2019-04-30
