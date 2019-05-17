@@ -1,4 +1,6 @@
+import codecs
 import os
+import sys
 from base64 import b64decode
 from collections import namedtuple
 from datetime import datetime
@@ -144,7 +146,10 @@ def yield_db_object_blocks(path, size=512):
                 # new command
                 if current_obj is not None:
                     block.append(current_obj)
-                current_obj = History.from_line(line)
+                try:
+                    current_obj = History.from_line(line)
+                except Exception as e:
+                    print(f"Line {i}: {e}\n{line}", file=sys.stderr)
             elif first_char == ";":
                 # multi-line command
                 if current_obj is None:
@@ -152,7 +157,7 @@ def yield_db_object_blocks(path, size=512):
                 current_obj.cmd += "\n" + line
             else:
                 # would only happen if file is corrupted
-                raise ValueError("invalid line %s starting with %s" % (i, first_char))
+                print(f"Line {i}: invalid line starting with {first_char}\n{line}", file=sys.stderr)
 
             if len(block) == size:
                 yield block
