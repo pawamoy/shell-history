@@ -32,12 +32,13 @@ fi
 
 # shellcheck disable=SC2120
 _shellhistory_parents() {
-  local list pid
+  local list pid line
   list="$(ps -eo pid,ppid,command | tr -s ' ' | sed 's/^ //g')"
   pid=$$
   while [ "${pid}" -ne 0 ]; do
-    echo "${list}" | grep "^${pid} " | cut -d' ' -f3-
-    pid=$(echo "${list}" | grep "^${pid} " | cut -d' ' -f2)
+    line="$(echo "${list}" | grep --text "^${pid} ")"
+    echo "${line}" | cut -d' ' -f3-
+    pid=$(echo "${line}" | cut -d' ' -f2)
   done
 }
 
