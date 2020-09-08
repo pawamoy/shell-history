@@ -6,11 +6,11 @@ repo_name: "pawamoy/shell-history"
 
 nav:
   - Overview: index.md
-    - cli.py: reference/cli.md
+  - API Reference:
     - app.py: reference/app.md
     - cli.py: reference/cli.md
     - db.py: reference/db.md
-    - shellhistory.sh: reference/shellhistory.md
+    # - shellhistory.sh: reference/shellhistory.md
   - Contributing: contributing.md
   - Code of Conduct: code_of_conduct.md
   - Changelog: changelog.md
@@ -26,8 +26,11 @@ markdown_extensions:
   - admonition
   - codehilite:
       guess_lang: false
-  - pymdownx.superfences
   - pymdownx.emoji
+  - pymdownx.magiclink
+  - pymdownx.superfences
+  - pymdownx.tabbed
+  - pymdownx.tasklist
   - toc:
       permalink: "¤"
 

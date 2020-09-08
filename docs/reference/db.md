@@ -1,1 +1,1 @@
-::: privibot.db
+::: shellhistory.db

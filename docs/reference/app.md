@@ -1,1 +1,1 @@
-::: privibot.app
+::: shellhistory.app
