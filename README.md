@@ -1,5 +1,8 @@
 # Shell History
-[![pipeline status](https://gitlab.com/pawamoy/shell-history/badges/master/pipeline.svg)](https://gitlab.com/pawamoy/shell-history/commits/master)
+
+[![ci](https://github.com/pawamoy/shell-history/workflows/ci/badge.svg)](https://github.com/pawamoy/shell-history/actions?query=workflow%3Aci)
+[![documentation](https://img.shields.io/badge/docs-mkdocs%20material-blue.svg?style=flat)](https://pawamoy.github.io/shell-history/)
+[![pypi version](https://img.shields.io/pypi/v/shell-history.svg)](https://pypi.org/project/shell-history/)
 
 Inspired by [bamos/zsh-history-analysis](https://github.com/bamos/zsh-history-analysis).
 
@@ -37,7 +40,8 @@ thanks to [Flask](http://flask.pocoo.org/) and [Highcharts](https://www.highchar
 - [License](#license)
 
 ## Requirements
-`shellhistory` requires Python 3.6 or above.
+
+Shell History requires Python 3.6 or above.
 
 <details>
 <summary>To install Python 3.6, I recommend using <a href="https://github.com/pyenv/pyenv"><code>pyenv</code></a>.</summary>
@@ -46,19 +50,21 @@ thanks to [Flask](http://flask.pocoo.org/) and [Highcharts](https://www.highchar
 # install pyenv
 git clone https://github.com/pyenv/pyenv ~/.pyenv
 
-# setup pyenv (you should also put these two lines in .bashrc or similar)
+# setup pyenv (you should also put these three lines in .bashrc or similar)
 export PATH="${HOME}/.pyenv/bin:${PATH}"
+export PYENV_ROOT="${HOME}/.pyenv"
 eval "$(pyenv init -)"
 
 # install Python 3.6
-pyenv install 3.6.7
+pyenv install 3.6.8
 
 # make it available globally
-pyenv global system 3.6.7
+pyenv global system 3.6.8
 ```
 </details>
 
 ## Installation
+
 With `pip`:
 ```bash
 python3.6 -m pip install shellhistory
@@ -66,12 +72,13 @@ python3.6 -m pip install shellhistory
 
 With [`pipx`](https://github.com/pipxproject/pipx):
 ```bash
-python3 -m pip install --user pipx
+python3.6 -m pip install --user pipx
 
 pipx install --python python3.6 shellhistory
 ```
 
 ## Setup
+
 `shellhistory` needs a lot of info to be able to display various charts.
 The basic shell history is not enough. In order to generate the necessary
 information, you have to enable the shell extension.
@@ -98,13 +105,16 @@ Get the path once with `shellhistory-location`, and use `. <ABS_PATH>`.
 In my case it's `. ~/.local/pipx/venvs/shellhistory/lib/python3.6/site-packages/shellhistory/shellhistory.sh`.*
 
 ## Usage
+
 Launch the web app with `shellhistory-web`.
 Now go to [http://localhost:5000/](http://localhost:5000/) and enjoy!
 
 You will need Internet connection since assets are not bundled.
 
 ## Some technical info
+
 ### How it works
+
 When you enter a command, `shellhistory` will compute values
 *before* and *after* the command execution.
 In Bash, it uses a trap on DEBUG and the PROMPT_COMMAND variable
@@ -119,6 +129,7 @@ and store the current working directory and the command itself.
 After the command has finished, we store the return code, and stop the timer.
 
 ### History file format
+
 Fields saved along commands are start and stop timestamps, hostname, username,
 uuid (generated), tty, process' parents, shell, shell level, command type,
 return code, and working directory (path), in the following format:
@@ -157,6 +168,7 @@ c"" | wc -c"
 ```
 
 ### How we get the values
+
 Start and stop time are obtained with `date '+%s%N'`, return code is passed
 directly with `$?`, working directory is obtained with `$PWD` and command
 type with `type` for Bash and `whence` for Zsh.
@@ -189,8 +201,3 @@ Additionally, if you enter an empty line,
 or hit Control-C before enter, nothing will be appended either.
 The trick behind this is to check the command number in the current history
 (see `shellhistory.sh` for technical details).
-
-## License
-Software licensed under the
-[ISC](https://www.isc.org/downloads/software-support-policy/isc-license/)
-license. See the [LICENSE](/LICENSE) file.

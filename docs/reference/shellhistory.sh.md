@@ -1,0 +1,1 @@
+::: privibot.shellhistory.sh
