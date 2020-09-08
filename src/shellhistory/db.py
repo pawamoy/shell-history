@@ -4,7 +4,6 @@ import sys
 from base64 import b64decode
 from collections import namedtuple
 from datetime import datetime
-
 from pathlib import Path
 
 from sqlalchemy import (
@@ -21,9 +20,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-
 from tqdm import tqdm
-
 
 DEFAULT_DIR = Path.home() / ".shellhistory"
 

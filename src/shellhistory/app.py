@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
 
+import statistics
 import time
 from collections import Counter, defaultdict
-from datetime import datetime, time as dt_time
-import statistics
+from datetime import datetime
 
 from flask import Flask, jsonify, render_template
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
-from sqlalchemy import extract, func, desc
-from sqlalchemy.sql import func as sqlfunc
+from sqlalchemy import desc, extract, func
 
 from . import db
-
 
 # Initialization and constants ------------------------------------------------
 app = Flask(__name__)
